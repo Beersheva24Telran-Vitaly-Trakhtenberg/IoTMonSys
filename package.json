@@ -20,7 +20,5 @@
     "start:frontend": "yarn workspace frontend start",
     "build": "yarn workspaces run build",
     "test": "yarn workspaces run test"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  }
 }
