@@ -1,0 +1,15 @@
+{
+  "name": "@iotmonsys/lambdas",
+  "version": "0.0.0",
+  "author": "Vitaly Trakhtenberg",
+  "description": "AWS Lambda functions for IoTMonSys",
+  "main": "target/lambda.jar",
+  "scripts": {
+    "build": "mvn clean package",
+    "test": "mvn test"
+  },
+  "devDependencies": {
+    "maven": "^4.7.0",
+    "@iotmonsys/backend": "^0.0.0"
+  }
+}

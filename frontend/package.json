@@ -1,0 +1,22 @@
+{
+  "name": "@iotmonsys/frontend",
+  "version": "0.0.0",
+  "author": "Vitaly Trakhtenberg",
+  "description": "Frontend for IoTMonSys",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "iotmonsys",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Vitaly Trakhtenberg",
+  "description": "The IoT-devices monitoring system, based on microservice architect using AWS cloud services",
+  "license": "ISC",
+  "keywords": [],
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "lambdas",
+    "simulator",
+    "udp-listener",
+    "infra"
+  ],
+  "scripts": {
+    "start:backend": "yarn workspace backend start",
+    "start:frontend": "yarn workspace frontend start",
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
