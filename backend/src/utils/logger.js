@@ -1,4 +1,7 @@
 import winston from 'winston';
+import morgan from 'morgan';
+import rfs from 'rotating-file-stream';
+import path from 'path';
 
 const loggerLevels = {
   alert: 0,
@@ -48,3 +51,28 @@ const logger = winston.createLogger({
   loggerFormat,
   loggerTransports,
 });
+
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
+  path: path.join(__dirname, '..', 'logs')
+});
+
+const authErrorLogStream = rfs.createStream('auth-error.log', {
+  interval: '1d',
+  path: path.join(__dirname, '..', 'logs')
+});
+
+const morganMiddleware = morgan('combined', { stream: accessLogStream });
+
+const morganAuthErrorMiddleware = morgan('combined', {
+  stream: authErrorLogStream,
+  skip: (req, res) => res.statusCode !== 401 && res.statusCode !== 403
+});
+
+const morganDevMiddleware = morgan('dev');
+
+module.exports = {
+  logger,
+  morganMiddleware: process.env.NODE_ENV === 'production' ? morganMiddleware : morganDevMiddleware,
+  morganAuthErrorMiddleware: process.env.NODE_ENV === 'production' ? morganAuthErrorMiddleware : null
+};
