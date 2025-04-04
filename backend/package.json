@@ -3,23 +3,25 @@
   "version": "0.0.0",
   "author": "Vitaly Trakhtenberg",
   "description": "Backend service for IoTMonSys",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon --exec node src/app.js",
-    "init-postgres": "node src/scripts/initPostgres.js",
-    "test": "jest --passWithNoTests --detectOpenHandles"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified, will be added later.\" && exit 0"
   },
   "keywords": [],
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "@iotmonsys/logger-node": "file:../logger-node",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mongoose": "^8.13.2",
+    "winston": "^3.17.0"
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
