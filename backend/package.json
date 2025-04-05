@@ -6,7 +6,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon --exec node src/app.js",
     "test": "echo \"Error: no test specified, will be added later.\" && exit 0"
   },
   "keywords": [],
@@ -25,5 +25,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

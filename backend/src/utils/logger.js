@@ -1,6 +1,6 @@
 import winston from 'winston';
 import morgan from 'morgan';
-import rfs from 'rotating-file-stream';
+import { createStream } from 'rotating-file-stream';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -31,7 +31,7 @@ const level = () => {
   return env === 'development' ? 'debug' : 'warn';
 };
 
-const format = winston.format.combine(
+const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
@@ -39,47 +39,51 @@ const format = winston.format.combine(
   ),
 );
 
-const transports = [
-  new winston.transports.Console(),
-  new winston.transports.File({
-    filename: 'logs/error.log',
-    level: 'error',
-  }),
-  new winston.transports.File({ filename: 'logs/all.log' }),
-];
+const fileFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  winston.format.printf(
+    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+  ),
+);
 
-export const logger = winston.createLogger({
+const logger = winston.createLogger({
   level: level(),
   levels,
-  format,
-  transports,
+  transports: [
+    new winston.transports.Console({
+      format: consoleFormat
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+      format: fileFormat
+    }),
+    new winston.transports.File({ 
+      filename: 'logs/all.log',
+      format: fileFormat
+    }),
+  ],
 });
 
-const accessLogStream = rfs.createStream('access.log', {
+const accessLogStream = createStream('access.log', {
   interval: '1d',
   path: path.join(__dirname, '..', '..', 'logs')
 });
 
-const authErrorLogStream = rfs.createStream('auth-error.log', {
+const authErrorLogStream = createStream('auth-error.log', {
   interval: '1d',
   path: path.join(__dirname, '..', '..', 'logs')
 });
-
-const morganMiddleware = morgan('combined', { stream: accessLogStream });
-
-const morganAuthErrorMiddleware = morgan('combined', {
-  stream: authErrorLogStream,
-  skip: (req, res) => res.statusCode !== 401 && res.statusCode !== 403
-});
-
-const morganDevMiddleware = morgan('dev');
 
 export const httpLogger = process.env.NODE_ENV === 'production'
-  ? morganMiddleware
-  : morganDevMiddleware;
+  ? morgan('combined', { stream: accessLogStream })
+  : morgan('dev');
 
 export const authErrorLogger = process.env.NODE_ENV === 'production'
-  ? morganAuthErrorMiddleware
+  ? morgan('combined', {
+      stream: authErrorLogStream,
+      skip: (req, res) => res.statusCode !== 401 && res.statusCode !== 403
+    })
   : null;
 
 export default logger;
