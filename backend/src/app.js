@@ -5,17 +5,13 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerDocument from 'swagger.json';
 import swaggerUi from 'swagger-ui-express';
 import connectDB from './config/db.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { logger } from "./utils/logger.js";
+import logger from "./utils/logger.js";
 
 dotenv.config();
 
 const app = express();
-const indexRouter = require('./routes/index');
 
 // Middleware
 app.use(express.json());
@@ -27,24 +23,21 @@ app.use(morgan('combined'));
 
 const PORT = process.env.PORT || 5000;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.use('/', indexRouter);
+// API Root route
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to IoTMonSys API' });
 });
 
+// API Routes
 import deviceRoutes from './routes/deviceRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import alertRoutes from './routes/alertRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 app.use('/api/devices', deviceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Swagger configuration
 const swaggerOptions = {
@@ -58,7 +51,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:' + process.env.PORT,
+        url: `http://localhost:${PORT}`,
         description: 'Development server',
       },
     ],
@@ -69,30 +62,30 @@ const swaggerOptions = {
           scheme: 'bearer',
           bearerFormat: 'JWT',
         }
-      },
-      schemas: {
-        ...movieSchemaSwagger,
-        ...accountSchemasSwagger,
-        ...generateSwaggerSchema,
-        ...favoriteSchemasSwagger,
       }
     },
     security: [{
       bearerAuth: []
     }]
   },
-  apis: ['./routes/*.js'],
+  apis: ['./src/routes/*.js', './src/models/*.js'],
 };
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Connect to database and start server
 connectDB().then(() => {
   const server = app.listen(PORT, () => {
     logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
   });
 
   process.on('unhandledRejection', (err) => {
-    console.error(`Unhandled Rejection: ${err.message}`);
     logger.alert(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
   });

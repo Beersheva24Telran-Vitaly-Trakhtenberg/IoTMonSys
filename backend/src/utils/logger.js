@@ -2,8 +2,12 @@ import winston from 'winston';
 import morgan from 'morgan';
 import rfs from 'rotating-file-stream';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const loggerLevels = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const levels = {
   alert: 0,
   error: 1,
   warn:  2,
@@ -22,21 +26,20 @@ const colors = {
 };
 winston.addColors(colors);
 
-const loggerLevel = () => {
+const level = () => {
   const env = process.env.NODE_ENV || 'development';
-  const isDevelopment = env === 'development';
-  return isDevelopment ? 'debug' : 'warn';
+  return env === 'development' ? 'debug' : 'warn';
 };
 
-const loggerFormat = winston.format.combine(
+const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    (info) => `${info.timestamp} ${info.loggerLevel}: ${info.message}`,
+    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
   ),
 );
 
-const loggerTransports = [
+const transports = [
   new winston.transports.Console(),
   new winston.transports.File({
     filename: 'logs/error.log',
@@ -45,21 +48,21 @@ const loggerTransports = [
   new winston.transports.File({ filename: 'logs/all.log' }),
 ];
 
-const logger = winston.createLogger({
-  loggerLevels,
-  loggerLevel,
-  loggerFormat,
-  loggerTransports,
+export const logger = winston.createLogger({
+  level: level(),
+  levels,
+  format,
+  transports,
 });
 
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
-  path: path.join(__dirname, '..', 'logs')
+  path: path.join(__dirname, '..', '..', 'logs')
 });
 
 const authErrorLogStream = rfs.createStream('auth-error.log', {
   interval: '1d',
-  path: path.join(__dirname, '..', 'logs')
+  path: path.join(__dirname, '..', '..', 'logs')
 });
 
 const morganMiddleware = morgan('combined', { stream: accessLogStream });
@@ -71,8 +74,12 @@ const morganAuthErrorMiddleware = morgan('combined', {
 
 const morganDevMiddleware = morgan('dev');
 
-module.exports = {
-  logger,
-  morganMiddleware: process.env.NODE_ENV === 'production' ? morganMiddleware : morganDevMiddleware,
-  morganAuthErrorMiddleware: process.env.NODE_ENV === 'production' ? morganAuthErrorMiddleware : null
-};
+export const httpLogger = process.env.NODE_ENV === 'production'
+  ? morganMiddleware
+  : morganDevMiddleware;
+
+export const authErrorLogger = process.env.NODE_ENV === 'production'
+  ? morganAuthErrorMiddleware
+  : null;
+
+export default logger;
