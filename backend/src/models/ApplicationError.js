@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-// Note: Что это за модель и для чего?
+
 const applicationErrorSchema = new mongoose.Schema({
   source: {
     type: String,
