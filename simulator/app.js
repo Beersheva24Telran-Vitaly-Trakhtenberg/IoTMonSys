@@ -1,14 +1,14 @@
 const { program } = require('commander'); // CLI library
 const dotenv = require('dotenv');
 const path = require('path');
+const { createLogger } = require('./logger');
 const DeviceGenerator = require('./deviceGenerator');
 const UdpSender = require('./udpSender');
 const CommandReceiver = require('./commandReceiver');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const { createLogger } = require('@iotmonsys/logger-node');
-const logger = createLogger('simulator', './logs');
+const logger = createLogger('simulator');
 
 const parseIntValue = (value) => {
   const parsedValue = parseInt(value, 10);
@@ -46,6 +46,10 @@ program
 program.parse(process.argv);
 
 const options = program.opts();
+
+logger.debug('Command line arguments received:');
+logger.debug(JSON.stringify(options, null, 2));
+logger.debug('Raw process.argv:', process.argv);
 
 const deviceCount = options.devices || DEFAULT_DEVICES;
 const sendInterval = options.interval || DEFAULT_INTERVAL;
