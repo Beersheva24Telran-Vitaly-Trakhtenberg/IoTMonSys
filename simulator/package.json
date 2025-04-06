@@ -1,13 +1,27 @@
 {
   "name": "@iotmonsys/simulator",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "author": "Vitaly Trakhtenberg",
+  "description": "IoT devices simulator",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "iot",
+    "simulator",
+    "udp"
+  ],
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "dependencies": {
+    "rotating-file-stream": "^3.2.6",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0"
+  }
 }
