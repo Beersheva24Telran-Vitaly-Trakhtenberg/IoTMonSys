@@ -33,8 +33,10 @@ class DeviceGenerator {
         deviceType = DATA_TYPES.TEMPERATURE;
       } else if (i < count * 0.7) {
         deviceType = DATA_TYPES.HUMIDITY;
-      } else if (i < count * 0.9) {
+      } else if (i < count * 0.8) {
         deviceType = DATA_TYPES.LIGHT;
+      } else if (i < count * 0.9) {
+        deviceType = DATA_TYPES.OPENING;
       } else {
         deviceType = types[Math.floor(Math.random() * types.length)];
       }
