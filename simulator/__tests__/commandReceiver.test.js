@@ -53,7 +53,7 @@ jest.mock('dgram', () => {
 });
 
 // Mock logger - prevent problem with its creation in tests
-jest.mock('logger-node', () => {
+jest.mock('../logger', () => {
   // Creating mock-functions for logger's methods
   const errorMock = jest.fn();
   const infoMock = jest.fn();
