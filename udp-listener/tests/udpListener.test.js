@@ -4,7 +4,6 @@ const { validateDeviceData } = require('../src/utils/dataValidator');
 const { saveDeviceData } = require('../src/database/database');
 const { sendToKinesis } = require('../src/services/kinesisService');
 
-// Мокируем модули
 jest.mock('dgram');
 jest.mock('../src/utils/dataValidator');
 jest.mock('../src/database/database', () => ({
@@ -19,10 +18,8 @@ describe('UDP Listener Core', () => {
   let mockServer;
 
   beforeEach(() => {
-    // Сбрасываем все моки перед каждым тестом
     jest.clearAllMocks();
 
-    // Создаем мок для UDP сервера
     mockServer = {
       on: jest.fn(),
       bind: jest.fn(),
@@ -30,10 +27,8 @@ describe('UDP Listener Core', () => {
       address: jest.fn().mockReturnValue({ address: '0.0.0.0', port: 41234 })
     };
 
-    // Мокаем createSocket, чтобы возвращать наш мок-сервер
     dgram.createSocket = jest.fn().mockReturnValue(mockServer);
 
-    // Создаем экземпляр UDP Listener
     listener = new UdpListener('0.0.0.0', 41234);
   });
 
@@ -55,10 +50,8 @@ describe('UDP Listener Core', () => {
   });
 
   test('Should handle message events and process valid data', () => {
-    // Получаем обработчик сообщений
     const messageHandler = mockServer.on.mock.calls.find(call => call[0] === 'message')[1];
 
-    // Подготавливаем тестовые данные
     const testData = {
       deviceId: 'dev-123',
       type: 'temperature',
@@ -69,24 +62,18 @@ describe('UDP Listener Core', () => {
     const message = Buffer.from(JSON.stringify(testData));
     const remote = { address: '192.168.1.100', port: 12345 };
 
-    // Мокаем validateDeviceData, чтобы возвращать успешный результат
     validateDeviceData.mockReturnValue({ isValid: true });
 
-    // Вызываем обработчик сообщений
     messageHandler(message, remote);
 
-    // Проверяем, что данные были валидированы и сохранены
     expect(validateDeviceData).toHaveBeenCalledWith(testData);
     expect(saveDeviceData).toHaveBeenCalled();
   });
 
   test('Should not process invalid data', () => {
-    // Получаем обработчик сообщений
     const messageHandler = mockServer.on.mock.calls.find(call => call[0] === 'message')[1];
 
-    // Подготавливаем тестовые данные
     const testData = {
-      // Отсутствует deviceId
       type: 'temperature',
       value: 25.5,
       timestamp: new Date().toISOString()
@@ -95,13 +82,10 @@ describe('UDP Listener Core', () => {
     const message = Buffer.from(JSON.stringify(testData));
     const remote = { address: '192.168.1.100', port: 12345 };
 
-    // Мокаем validateDeviceData, чтобы возвращать ошибку
     validateDeviceData.mockReturnValue({ isValid: false, error: 'Missing deviceId' });
 
-    // Вызываем обработчик сообщений
     messageHandler(message, remote);
 
-    // Проверяем, что данные были валидированы, но не сохранены
     expect(validateDeviceData).toHaveBeenCalledWith(testData);
     expect(saveDeviceData).not.toHaveBeenCalled();
   });
