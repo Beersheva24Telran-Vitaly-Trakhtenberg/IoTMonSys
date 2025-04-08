@@ -42,11 +42,19 @@ function validateDeviceData(data) {
       errors.push(`Incorrect format. 'value' must be a Number.`);
     }
 
-    try {
+    /*try {
       new Date(data.timestamp);
     } catch (error) {
       isValid = false;
       errors.push(`Incorrect format. 'timestamp' must be a Timestamp.`);
+    }
+*/
+    if (data.timestamp) {
+      const date = new Date(data.timestamp);
+      if (isNaN(date.getTime())) {
+        isValid = false;
+        errors.push(`Incorrect format. 'timestamp' must be a valid Timestamp.`);
+      }
     }
 
     if (data.batteryLevel !== undefined && typeof data.batteryLevel !== 'number') {
