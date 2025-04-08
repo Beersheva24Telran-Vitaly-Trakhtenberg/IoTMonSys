@@ -97,3 +97,14 @@
 2025-04-08 21:38:49:3849 [udp-listener] info: Running UDP-listener on 0.0.0.0:41234
 2025-04-08 21:38:49:3849 [udp-listener] info: UDP-listener stopped.
 2025-04-08 21:38:49:3849 [udp-listener] warn: Incorrect data from 192.168.1.100:12345: Missing deviceId
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode disabled.
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode enabled. Max time of duration: 1 sec
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode disabled.
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode enabled. Max time of duration: 60 sec
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode disabled.
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode disabled.
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode enabled. Max time of duration: 0.1 sec
+2025-04-08 21:43:36:4336 [device-data-service] info: Discovery mode disabled automatically.
+2025-04-08 21:43:36:4336 [udp-listener] info: Running UDP-listener on 0.0.0.0:41234
+2025-04-08 21:43:36:4336 [udp-listener] info: UDP-listener stopped.
+2025-04-08 21:43:36:4336 [udp-listener] warn: Incorrect data from 192.168.1.100:12345: Missing deviceId
