@@ -1,7 +1,7 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
-import rfs from 'rotating-file-stream';
+import * as rfs from 'rotating-file-stream';
 
 const levels = {
   alert: 0,
@@ -32,7 +32,7 @@ const level = () => {
  * @param {string|null} customLogDir
  * @returns {winston.Logger}
  */
-export function createLogger(service, customLogDir = null) {
+function createLoggerFunction(service, customLogDir = null) {
   const logDir = customLogDir || path.resolve('logs', service);
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
@@ -86,3 +86,7 @@ export function createLogger(service, customLogDir = null) {
     ],
   });
 }
+
+// Double export: style ESM and style CommonJS
+export const createLogger = createLoggerFunction;
+export default createLoggerFunction;
