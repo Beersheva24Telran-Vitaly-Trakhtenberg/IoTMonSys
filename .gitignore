@@ -10,7 +10,5 @@ build/
 idea/
 .idea/
 target/
-yarn.lock
-package-lock.json
 */yarn.lock
 */package-lock.json
