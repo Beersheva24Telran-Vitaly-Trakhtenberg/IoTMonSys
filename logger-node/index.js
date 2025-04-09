@@ -32,7 +32,7 @@ const level = () => {
  * @param {string|null} customLogDir
  * @returns {winston.Logger}
  */
-export function createLogger(service, customLogDir = null) {
+function createLoggerFunction(service, customLogDir = null) {
   const logDir = customLogDir || path.resolve('logs', service);
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
@@ -86,3 +86,7 @@ export function createLogger(service, customLogDir = null) {
     ],
   });
 }
+
+//export const createLogger = createLoggerFunction;
+
+//export default createLoggerFunction;

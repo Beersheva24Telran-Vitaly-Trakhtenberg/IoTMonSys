@@ -1,12 +1,17 @@
 const dgram = require('dgram');
-const { createLogger } = require('./logger');
+const loggerLibrary = require('@iotmonsys/logger-node');
 
 class UdpSender {
+  logger = loggerLibrary.createLogger('udp-sender', './logs');
+
+  /**
+   * @param {number} host
+   * @param {number} port
+   */
   constructor(host, port) {
     this.host = host;
     this.port = port;
     this.client = dgram.createSocket('udp4');
-    this.logger = createLogger('udp-sender');
 
     this.client.on('error', (err) => {
       this.logger.error(`UDP client error: ${err.message}`);
