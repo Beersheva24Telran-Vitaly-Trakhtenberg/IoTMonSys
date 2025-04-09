@@ -98,4 +98,4 @@ const loggerLibrary = {
 
 // Double export: style ESM and style CommonJS
 export default loggerLibrary;
-export const { createLogger, defaultLogger } = loggerLibrary;
+export const createLogger = loggerLibrary;
