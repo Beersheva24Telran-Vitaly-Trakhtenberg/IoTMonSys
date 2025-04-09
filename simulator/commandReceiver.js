@@ -3,7 +3,7 @@ const EventEmitter = require('events');
 const loggerLibrary = require('@iotmonsys/logger-node');
 
 class CommandReceiver extends EventEmitter {
-  logger = loggerLibrary.createLogger('command-receiver', './logs');
+  logger = loggerLibrary.createLogger.createLogger('command-receiver', './logs');
 
   /**
    * @param {number} port
