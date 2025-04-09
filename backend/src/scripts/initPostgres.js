@@ -1,7 +1,8 @@
 import { syncDatabase, initializePermissions, createDefaultAdmin } from '../models/sql/index.js';
 import { testConnection } from '../config/sequelize.js';
-import logger from "../utils/logger.js";
+import loggerLibrary from "@iotmonsys/logger-node";
 
+let logger = loggerLibrary.createLogger('backend', './logs');
 
 const initializeDatabase = async () => {
   try {

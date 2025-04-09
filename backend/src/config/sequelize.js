@@ -1,8 +1,10 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import logger from "../utils/logger.js";
+import loggerLibrary from "@iotmonsys/logger-node";
 
 dotenv.config();
+
+let logger = loggerLibrary.createLogger('backend', './logs');
 
 const dbConfig = {
   database: process.env.POSTGRES_DB_NAME || 'postgres',

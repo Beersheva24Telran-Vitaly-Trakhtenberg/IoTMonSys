@@ -3,7 +3,9 @@ import Permission from './Permission.js';
 import RolePermission from './RolePermission.js';
 import UserSession from './UserSession.js';
 import sequelize from '../../config/sequelize.js';
-import logger from "../../utils/logger.js";
+import loggerLibrary from "@iotmonsys/logger-node";
+
+let logger = loggerLibrary.createLogger('backend', './logs');
 
 export const syncDatabase = async (force = false) => {
   try {
