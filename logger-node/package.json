@@ -1,10 +1,17 @@
 {
-  "devDependencies": {
-    "jest": "^29.3.1",
-    "@types/jest": "^29.2.5"
-  },
-
-  "scripts": {
-    "test": "jest"
+  "name": "@iotmonsys/logger-node",
+  "version": "0.1.0",
+  "author": "Vitaly Trakhtenberg",
+  "description": "Logger library for node.js modules of IoTMonSys project",
+  "main": "logger.js",
+  "keywords": [
+    "logger"
+  ],
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {},
+  "dependencies": {
+    "rotating-file-stream": "^3.2.6",
+    "winston": "^3.17.0"
   }
 }
