@@ -1,8 +1,8 @@
 const dgram = require('dgram');
-const { createLogger } = require('@iotmonsys/logger-node');
+const loggerLibrary = require('@iotmonsys/logger-node');
 
 class UdpSender {
-  logger = createLogger('udp-sender', './logs');
+  logger = loggerLibrary.createLogger('udp-sender', './logs');
 
   /**
    * @param {number} host

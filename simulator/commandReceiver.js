@@ -1,9 +1,9 @@
 const dgram = require('dgram');
 const EventEmitter = require('events');
-const { createLogger } = require('@iotmonsys/logger-node');
+const loggerLibrary = require('@iotmonsys/logger-node');
 
 class CommandReceiver extends EventEmitter {
-  logger = createLogger('command-receiver', './logs');
+  logger = loggerLibrary.createLogger('command-receiver', './logs');
 
   /**
    * @param {number} port
