@@ -18,7 +18,7 @@ class DeviceGenerator {
    * @param {number} deviceCount
    * @param {number} anomalyRate
    */
-  logger = loggerLibrary.createLogger('device-generator', './logs');
+  logger = loggerLibrary.createLogger.createLogger('device-generator', './logs');
 
   constructor(
     deviceCount = 5,
