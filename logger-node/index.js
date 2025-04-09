@@ -87,15 +87,10 @@ function createLoggerFunction(service, customLogDir = null) {
   });
 }
 
-const defaultLogger = createLoggerFunction('default');
-
 const loggerLibrary = {
   createLogger:
     createLoggerFunction,
-    defaultLogger,
-    ...defaultLogger,
+    ...createLoggerFunction,
 };
 
-// Double export: style ESM and style CommonJS
 export default loggerLibrary;
-export const createLogger = loggerLibrary;
