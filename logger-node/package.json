@@ -1,9 +1,9 @@
 {
   "name": "@iotmonsys/logger-node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Vitaly Trakhtenberg",
   "description": "Logger library for node.js modules of IoTMonSys project",
-  "main": "logger.js",
+  "main": "index.js",
   "keywords": [
     "logger"
   ],
