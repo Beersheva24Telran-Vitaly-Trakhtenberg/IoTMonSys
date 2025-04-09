@@ -8,10 +8,16 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import connectDB from './config/db.js';
 import logger from "./utils/logger.js";
+import loggerLibrary from "@iotmonsys/logger-node";
+import { createLogger } from "@iotmonsys/logger-node";
 
 dotenv.config();
 
 const app = express();
+
+// Logger
+console.log("loggerLibrary: ", loggerLibrary, typeof loggerLibrary);
+console.log("createLogger: ", createLogger, typeof createLogger);
 
 // Middleware
 app.use(express.json());
