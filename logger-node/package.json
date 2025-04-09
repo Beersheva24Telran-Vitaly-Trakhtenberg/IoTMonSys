@@ -1,32 +1,4 @@
 {
-  "name": "@iotmonsys/logger-node",
-  "version": "0.1.1",
-  "author": "Vitaly Trakhtenberg",
-  "description": "Logger library for node.js modules of IoTMonSys project",
-  "main": "index.js",
-  "keywords": [
-    "logger"
-  ],
-  "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "morgan": "^1.10.0",
-    "rotating-file-stream": "^3.2.6",
-    "winston": "^3.17.0"
-  "name": "@iotmonsys/logger-node",
-  "version": "0.1.1",
-  "author": "Vitaly Trakhtenberg",
-  "description": "Logger library for node.js modules of IoTMonSys project",
-  "main": "index.js",
-  "keywords": [
-    "logger"
-  ],
-  "license": "ISC",
-  "type": "module",
-  "devDependencies": {},
-  "dependencies": {
-    "rotating-file-stream": "^3.2.6",
-    "winston": "^3.17.0"
   "devDependencies": {
     "jest": "^29.3.1",
     "@types/jest": "^29.2.5"
