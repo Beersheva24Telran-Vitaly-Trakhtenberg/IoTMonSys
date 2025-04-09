@@ -1,14 +1,14 @@
 const { program } = require('commander'); // CLI library
 const dotenv = require('dotenv');
 const path = require('path');
-const { createLogger } = require('./logger');
 const DeviceGenerator = require('./deviceGenerator');
 const UdpSender = require('./udpSender');
 const CommandReceiver = require('./commandReceiver');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const logger = createLogger('simulator');
+const loggerLibrary = require('@iotmonsys/logger-node');
+const logger = loggerLibrary.createLogger('simulator', './logs');
 
 const parseIntValue = (value) => {
   const parsedValue = parseInt(value, 10);

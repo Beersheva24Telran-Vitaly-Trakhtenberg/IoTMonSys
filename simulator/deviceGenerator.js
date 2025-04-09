@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { createLogger } = require('./logger');
+const loggerLibrary = require('@iotmonsys/logger-node');
 
 const DATA_TYPES = {
   TEMPERATURE: 'temperature',
@@ -14,8 +14,16 @@ const DATA_TYPES = {
 };
 
 class DeviceGenerator {
-  constructor(deviceCount = 5, anomalyRate = 5) {
-    this.logger = createLogger('device-generator');
+  /**
+   * @param {number} deviceCount
+   * @param {number} anomalyRate
+   */
+  logger = loggerLibrary.createLogger('device-generator', './logs');
+
+  constructor(
+    deviceCount = 5,
+    anomalyRate = 5
+  ) {
     this.deviceCount = deviceCount;
     this.anomalyRate = anomalyRate;
     this.devices = this._initializeDevices(deviceCount);

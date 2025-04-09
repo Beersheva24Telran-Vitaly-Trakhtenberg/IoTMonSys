@@ -1,13 +1,17 @@
 const dgram = require('dgram');
 const EventEmitter = require('events');
-const { createLogger } = require('./logger');
+const loggerLibrary = require('@iotmonsys/logger-node');
 
 class CommandReceiver extends EventEmitter {
-  constructor(port) {
+  logger = loggerLibrary.createLogger('command-receiver', './logs');
+
+  /**
+   * @param {number} port
+   */
+  constructor(port ) {
     super();
     this.port = port;
     this.server = dgram.createSocket('udp4');
-    this.logger = createLogger('command-receiver');
 
     this.server.on('error', (err) => {
       this.logger.error(`Server error: ${err.message}`);
