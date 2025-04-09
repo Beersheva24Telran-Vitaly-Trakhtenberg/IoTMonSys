@@ -1,9 +1,12 @@
 node_modules/
+/.env
+/.env.*
+/*.lock
+/*-lock.json
 dist/
 build/
 idea/
 .idea/
 target/
-logs/
 yarn.lock
 package-lock.json
