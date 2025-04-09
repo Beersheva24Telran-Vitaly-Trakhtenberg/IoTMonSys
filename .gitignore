@@ -5,6 +5,8 @@ build/
 idea/
 .idea/
 target/
+yarn.lock
+package-lock.json
 logs/
 yarn.lock
 package-lock.json
