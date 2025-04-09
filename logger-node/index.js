@@ -1,7 +1,7 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
-import rfs from 'rotating-file-stream';
+import * as rfs from 'rotating-file-stream';
 
 const levels = {
   alert: 0,
@@ -87,6 +87,6 @@ function createLoggerFunction(service, customLogDir = null) {
   });
 }
 
-//export const createLogger = createLoggerFunction;
-
-//export default createLoggerFunction;
+// Double export: style ESM and style CommonJS
+export const createLogger = createLoggerFunction;
+export default createLoggerFunction;
