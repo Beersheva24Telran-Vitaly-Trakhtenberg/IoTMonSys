@@ -13,7 +13,7 @@ dotenv.config();
 
 const app = express();
 
-  let logger = loggerLibrary.createLogger('backend', './logs');
+let logger = loggerLibrary.createLogger('backend', './logs');
 
 // Middleware
 app.use(express.json());

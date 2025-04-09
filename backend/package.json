@@ -8,7 +8,7 @@
     "start": "node src/app.js",
     "dev": "nodemon --exec node src/app.js",
     "init-postgres": "node src/scripts/initPostgres.js",
-    "test": "echo \"Error: no test specified, will be added later.\" && exit 0"
+    "test": "jest --passWithNoTests --detectOpenHandles"
   },
   "keywords": [],
   "license": "ISC",
