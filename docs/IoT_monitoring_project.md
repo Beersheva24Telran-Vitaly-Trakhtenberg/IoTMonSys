@@ -202,7 +202,7 @@ iot-monitoring-system/
 │   │   ├── store/             # Настройка Redux store
 │   │   ├── utils/             # Вспомогательные функции
 │   │   ├── App.js             # Основной компонент с роутингом
-│   │   └── index.js           # Точка входа
+│   │   └── app.js           # Точка входа
 │   ├── .env.development       # Переменные окружения для разработки
 │   ├── .env.production        # Переменные окружения для продакшена
 │   ├── package.json
