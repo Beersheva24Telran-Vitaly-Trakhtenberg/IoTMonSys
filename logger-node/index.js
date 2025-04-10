@@ -94,3 +94,4 @@ const loggerLibrary = {
 };
 
 export default loggerLibrary;
+export const createLogger = loggerLibrary.createLogger;
