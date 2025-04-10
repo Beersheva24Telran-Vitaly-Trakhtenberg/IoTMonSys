@@ -7,8 +7,8 @@ const CommandReceiver = require('./commandReceiver');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const loggerLibrary = require('@iotmonsys/logger-node');
-const logger = loggerLibrary.createLogger.createLogger('simulator', './logs');
+const { createLogger } = require('@iotmonsys/logger-node');
+const logger = createLogger('simulator', './logs');
 
 const parseIntValue = (value) => {
   const parsedValue = parseInt(value, 10);
