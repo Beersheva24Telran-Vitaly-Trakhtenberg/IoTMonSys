@@ -1,15 +1,15 @@
+const dotenv = require('dotenv');
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
 const UdpListener = require('./src/udpListener');
-const { createLogger } = require('./src/utils/logger');
+const { createLogger } = require('@iotmonsys/logger-node');
 const { connectDB } = require('./src/database/database');
 const express = require('express');
 const bodyParser = require('body-parser');
 const discoveryApi = require('./src/api/discoveryApi');
-const dotenv = require('dotenv');
-const path = require('path');
 
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-const logger = createLogger('udp-listener-main');
+const logger = createLogger('udp-listener-main', './logs');
 
 const UDP_PORT = process.env.UDP_PORT || 41234;
 const UDP_HOST = process.env.UDP_HOST || '0.0.0.0';
@@ -24,7 +24,11 @@ connectDB().then(() => {
   const listener = new UdpListener(UDP_HOST, UDP_PORT);
   listener.start();
 
-  logger.info(`UDP-listener started on ${UDP_HOST}:${UDP_PORT}`);
+  try {
+    logger.info(`UDP-listener started on ${UDP_HOST}:${UDP_PORT}`);
+  } catch (error) {
+    logger.error(`Error when logging start of UDP-listener: ${error.message}. ${error.stack}`);
+  }
 
   const server = app.listen(API_PORT, () => {
     logger.info(`API-server started on ${API_PORT}`);

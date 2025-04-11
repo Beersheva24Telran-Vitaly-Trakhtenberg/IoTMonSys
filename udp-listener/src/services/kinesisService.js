@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
-const { createLogger } = require('../utils/logger');
+const { createLogger } = require('@iotmonsys/logger-node');
 
-const logger = createLogger('kinesis-service');
+const logger = createLogger('kinesis-service', './logs');
 
 AWS.config.update({
   region: process.env.AWS_REGION || 'us-east-1'

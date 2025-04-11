@@ -1,8 +1,8 @@
 const deviceData = require('../models/deviceData');
 const Device = require('../models/Device');
-const { createLogger } = require('../utils/logger');
+const { createLogger } = require('@iotmonsys/logger-node');
 
-const logger = createLogger('device-data-service');
+const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)
 let discoveryMode = process.env.DISCOVERY_MODE_ENABLED === 'true';
