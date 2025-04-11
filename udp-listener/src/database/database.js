@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
-const { createLogger } = require('../utils/logger');
 const dotenv = require('dotenv');
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const logger = createLogger('database');
+const mongoose = require('mongoose');
+const { createLogger } = require('@iotmonsys/logger-node');
 
-dotenv.config();
+const logger = createLogger('database', './logs');
 
 /**
  * Connection to MongoDB Atlas
@@ -14,7 +15,7 @@ dotenv.config();
 async function connectDB(uri = process.env.MONGODB_URI) {
   try {
     if (mongoose.connection.readyState === 1) {
-      logger.debug('Using existing connection to MongoDB.');
+        logger.debug('Using existing connection to MongoDB.');
       return mongoose.connection;
     }
 
@@ -22,14 +23,13 @@ async function connectDB(uri = process.env.MONGODB_URI) {
 
     // Optimal working parameters for MongoDB Atlas
     const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
     };
 
+    logger.debug(`Connection string: ${uri}, options: ` + Object.keys(options) + `, logger: ` + Object.keys(logger));
     await mongoose.connect(uri, options);
 
     logger.info('Connection to MongoDB Atlas successfully established.');

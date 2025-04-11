@@ -1,9 +1,9 @@
 const express = require('express');
 const { setDiscoveryMode, getDiscoveryMode } = require('../services/deviceDataService');
-const { createLogger } = require('../utils/logger');
+const { createLogger } = require('@iotmonsys/logger-node');
 
 const router = express.Router();
-const logger = createLogger('discovery-api');
+const logger = createLogger('discovery-api', './logs');
 
 router.get('/discovery', (req, res) => {
   try {

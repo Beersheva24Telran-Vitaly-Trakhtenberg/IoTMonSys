@@ -1,5 +1,5 @@
 const dgram = require('dgram');
-const { createLogger } = require('./utils/logger');
+const { createLogger } = require('@iotmonsys/logger-node');
 const { validateDeviceData } = require('./utils/dataValidator');
 const { saveDeviceData } = require('./database/database');
 const { sendToKinesis } = require('./services/kinesisService');
@@ -10,7 +10,7 @@ class UdpListener {
     this.port = port;
     this.db = db;
     this.server = dgram.createSocket('udp4');
-    this.logger = createLogger('udp-listener');
+    this.logger = createLogger('udp-listener', './logs');
 
     this._setupEventHandlers();
   }
