@@ -88,9 +88,7 @@ function createLoggerFunction(service, customLogDir = null) {
 }
 
 const loggerLibrary = {
-  createLogger:
-    createLoggerFunction,
-    ...createLoggerFunction,
+  createLogger: createLoggerFunction
 };
 
 export default loggerLibrary;
