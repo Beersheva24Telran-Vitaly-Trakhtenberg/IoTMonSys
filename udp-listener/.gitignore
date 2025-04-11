@@ -1,0 +1,6 @@
+.gitignore
+yarn.lock
+package-lock.json
+.env
+node_modules
+logs
