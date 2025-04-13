@@ -9,8 +9,8 @@
   ],
   "license": "ISC",
   "type": "module",
-  "devDependencies": {},
   "dependencies": {
+    "morgan": "^1.10.0",
     "rotating-file-stream": "^3.2.6",
     "winston": "^3.17.0"
   }
