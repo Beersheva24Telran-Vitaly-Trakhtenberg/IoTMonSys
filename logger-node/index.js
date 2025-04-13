@@ -1,4 +1,5 @@
 import winston from 'winston';
+import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
 import * as rfs from 'rotating-file-stream';
@@ -33,24 +34,37 @@ const level = () => {
  * @returns {winston.Logger}
  */
 function createLoggerFunction(service, customLogDir = null) {
-  const logDir = customLogDir || path.resolve('logs', service);
+  if (!service) {
+    service = 'default';
+    console.warn('Logger service name not provided, using "default".');
+  }
+  const baseDir = customLogDir || process.cwd(); 
+  const logDir = path.resolve(baseDir, 'logs', service);
+  
   if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+    try {
+      fs.mkdirSync(logDir, { recursive: true });
+    } catch (err) {
+      console.error(`Failed to create log directory ${logDir}:`, err);
+    }
   }
 
-  const errorLogStream = rfs.createStream('error.log', {
-    interval: '1d',
-    path: logDir,
-    size: '10M',
-    compress: 'gzip',
-  });
+  const createRfsStream = (filename) => {
+      try {
+          return rfs.createStream(filename, {
+              interval: '1d',
+              path: logDir,
+              size: '10M',
+              compress: 'gzip',
+          });
+      } catch (err) {
+          console.error(`Failed to create rotating file stream for ${filename} in ${logDir}:`, err);
+          return null; 
+      }
+  };
 
-  const combinedLogStream = rfs.createStream('combined.log', {
-    interval: '1d',
-    path: logDir,
-    size: '10M',
-    compress: 'gzip',
-  });
+  const errorLogStream = createRfsStream('error.log');
+  const combinedLogStream = createRfsStream('combined.log');
 
   const consoleFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
@@ -67,29 +81,78 @@ function createLoggerFunction(service, customLogDir = null) {
     )
   );
 
-  return winston.createLogger({
-    level: level(),
-    levels,
-    transports: [
-      new winston.transports.Console({
-        format: consoleFormat,
-      }),
+  const transports = [
+    new winston.transports.Console({
+      format: consoleFormat,
+    }),
+  ];
+
+  if (errorLogStream) {
+    transports.push(
       new winston.transports.Stream({
         stream: errorLogStream,
         level: 'error',
         format: fileFormat,
-      }),
+      })
+    );
+  }
+  if (combinedLogStream) {
+    transports.push(
       new winston.transports.Stream({
         stream: combinedLogStream,
         format: fileFormat,
-      }),
-    ],
+      })
+    );
+  }
+
+  return winston.createLogger({
+    level: level(),
+    levels,
+    format: winston.format.errors({ stack: true }),
+    transports,
+    exitOnError: false,
   });
 }
 
+/**
+ * Creates middleware for logging HTTP requests.
+ * Using Morgan for logging HTTP-requests, sends output to the provided Winston-logger.
+ * @param {winston.Logger} loggerInstance - Instance of Winston logger, built by createLogger.
+ * @param {object} [options={}] - Options.
+ * @param {'combined' | 'common' | 'dev' | 'short' | 'tiny' | string} [options.format] - Logs Morgan format. By default: 'dev' for development, 'combined' for production.
+ * @param {boolean} [options.logOnlyAuthErrors=false] - When flag is true, logs just answers with status code 401/403 (only in production).
+ * @returns {Function} - Morgan middleware.
+ */
+function createHttpLoggerMiddleware(loggerInstance, options = {}) {
+  const env = process.env.NODE_ENV || 'development';
+  const defaultFormat = env === 'development' ? 'dev' : 'combined';
+  const format = options.format || defaultFormat;
+  const logOnlyAuthErrors = options.logOnlyAuthErrors || false;
+
+  const morganOptions = {
+    stream: {
+      write: (message) => {
+        const level = logOnlyAuthErrors ? 'warn' : 'http';
+        loggerInstance[level](message.trim());
+      },
+    },
+  };
+
+  if (logOnlyAuthErrors && env === 'production') {
+    morganOptions.skip = (req, res) => res.statusCode !== 401 && res.statusCode !== 403;
+  } else if (logOnlyAuthErrors && env !== 'production') {
+    return (req, res, next) => next();
+  }
+
+  return morgan(format, morganOptions);
+}
+
 const loggerLibrary = {
-  createLogger: createLoggerFunction
+  createLogger: createLoggerFunction,
+  createHttpLoggerMiddleware: createHttpLoggerMiddleware,
 };
 
-export default loggerLibrary;
 export const createLogger = loggerLibrary.createLogger;
+export const createHttpLogger = loggerLibrary.createHttpLoggerMiddleware;
+
+export default loggerLibrary;
