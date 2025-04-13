@@ -13,27 +13,19 @@
       "require": "./index.js"
     }
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0"
-  },
   "dependencies": {
     "morgan": "^1.10.0",
     "rotating-file-stream": "^3.2.6",
     "winston": "^3.17.0"
   },
-  "devDependencies": {},
-  "keywords": [
-    "logger",
-    "iotmonsys"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://github.com:Beersheva24Telran-Vitaly-Trakhtenberg/IoTMonSys.git",
-    "directory": "logger-node"
   "devDependencies": {
     "jest": "^29.3.1",
     "@types/jest": "^29.2.5"
   },
+  "keywords": [
+    "logger",
+    "iotmonsys"
+  ],
   "scripts": {
     "test": "jest"
   }
