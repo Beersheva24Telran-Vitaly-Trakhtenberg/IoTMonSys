@@ -43,12 +43,14 @@ function createLoggerFunction(service, customLogDir = null) {
   const logDir = path.resolve(baseDir, 'logs', service);
 */
   let logDir;
-  if (customLogDir) {
+  console.log("customLogDir: ", customLogDir, customLogDir!==null);
+  if (customLogDir!==null) {
     logDir = path.resolve(customLogDir, service);
   } else {
     logDir = path.resolve(process.cwd(), 'logs', service);
   }
 
+  console.log("logDir: ", logDir);
   if (!fs.existsSync(logDir)) {
     try {
       fs.mkdirSync(logDir, { recursive: true });
