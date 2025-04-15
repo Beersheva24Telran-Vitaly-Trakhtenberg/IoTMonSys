@@ -7,13 +7,13 @@ import cookieParser from 'cookie-parser';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import connectDB from './config/db.js';
-import loggerLibrary from "@iotmonsys/logger-node";
+import { createLogger } from "@iotmonsys/logger-node";
 
 dotenv.config();
 
 const app = express();
 
-let logger = loggerLibrary.createLogger('backend', './logs');
+  let logger = createLogger('backend', './logs');
 
 // Middleware
 app.use(express.json());
