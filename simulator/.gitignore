@@ -1,5 +1,11 @@
-yarn.lock
-package-lock.json
-node_modules
 .env
-logs
+.env.*
+*.lock
+*-lock.json
+node_modules/
+logs/
+dist/
+build/
+idea/
+.idea/
+target/
