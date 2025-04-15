@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import loggerLibrary from "@iotmonsys/logger-node";
+import { createLogger } from "@iotmonsys/logger-node";
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-let logger = loggerLibrary.createLogger('backend', './logs');
+let logger = createLogger('backend', './logs');
 
 const connectDB = async () => {
   try {
