@@ -1,25 +1,42 @@
 {
-  "name": "@iotmonsys/logger-node",
-  "version": "0.1.1",
+  "name": "iotmonsys",
+  "version": "1.0.0",
+  "private": true,
   "author": "Vitaly Trakhtenberg",
-  "description": "Logger library for node.js modules of IoTMonSys project",
-  "main": "index.js",
-  "keywords": [
-    "logger"
-  ],
+  "description": "The IoT-devices monitoring system, based on microservice architect using AWS cloud services",
   "license": "ISC",
+  "keywords": [],
   "type": "module",
-  "dependencies": {
-    "morgan": "^1.10.0",
-    "rotating-file-stream": "^3.2.6",
-    "winston": "^3.17.0"
+  "workspaces": [
+    "backend",
+    "frontend",
+    "lambdas",
+    "simulator",
+    "udp-listener",
+    "infra"
+  ],
+  "scripts": {
+    "start:backend": "yarn workspace backend start",
+    "start:frontend": "yarn workspace frontend start",
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "prepare": "husky install",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "devDependencies": {
-    "jest": "^29.3.1",
-    "@types/jest": "^29.2.5"
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
   },
-
-  "scripts": {
-    "test": "jest"
+  "dependencies": {
+    "mongodb": "^6.15.0"
   }
 }
