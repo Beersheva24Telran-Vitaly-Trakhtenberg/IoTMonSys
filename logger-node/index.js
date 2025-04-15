@@ -4,6 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import * as rfs from 'rotating-file-stream';
 
+console.log('--- LOGGER-NODE MODULE LOADED ---');
+
 const levels = {
   alert: 0,
   error: 1,
@@ -38,19 +40,14 @@ function createLoggerFunction(service, customLogDir = null) {
     service = 'default';
     console.warn('Logger service name not provided, using "default".');
   }
-/*
-  const baseDir = customLogDir || process.cwd();
-  const logDir = path.resolve(baseDir, 'logs', service);
-*/
+
   let logDir;
-  console.log("customLogDir: ", customLogDir, customLogDir!==null);
-  if (customLogDir!==null) {
+  if (customLogDir) {
     logDir = path.resolve(customLogDir, service);
   } else {
     logDir = path.resolve(process.cwd(), 'logs', service);
   }
 
-  console.log("logDir: ", logDir);
   if (!fs.existsSync(logDir)) {
     try {
       fs.mkdirSync(logDir, { recursive: true });
@@ -60,17 +57,17 @@ function createLoggerFunction(service, customLogDir = null) {
   }
 
   const createRfsStream = (filename) => {
-      try {
-          return rfs.createStream(filename, {
-              interval: '1d',
-              path: logDir,
-              size: '10M',
-              compress: 'gzip',
-          });
-      } catch (err) {
-          console.error(`Failed to create rotating file stream for ${filename} in ${logDir}:`, err);
-          return null; 
-      }
+    try {
+      return rfs.createStream(filename, {
+        interval: '1d',
+        path: logDir,
+        size: '10M',
+        compress: 'gzip',
+      });
+    } catch (err) {
+      console.error(`Failed to create rotating file stream for ${filename} in ${logDir}:`, err);
+      return null;
+    }
   };
 
   const errorLogStream = createRfsStream('error.log');
@@ -162,7 +159,6 @@ const loggerLibrary = {
   createHttpLoggerMiddleware: createHttpLoggerMiddleware,
 };
 
-export const createLogger = loggerLibrary.createLogger;
 export const createHttpLogger = loggerLibrary.createHttpLoggerMiddleware;
-
+export const createLogger = loggerLibrary.createLogger;
 export default loggerLibrary;
