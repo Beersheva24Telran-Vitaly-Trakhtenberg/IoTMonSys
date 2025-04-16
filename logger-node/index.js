@@ -41,12 +41,16 @@ function createLoggerFunction(service, customLogDir = null) {
     console.warn('Logger service name not provided, using "default".');
   }
 
-  let logDir;
-  if (customLogDir) {
-    logDir = path.resolve(customLogDir, service);
+  let baseDir;
+  if (customLogDir && path.isAbsolute(customLogDir)) {
+    baseDir = customLogDir;
+  } else if (customLogDir) {
+    baseDir = path.resolve(process.cwd(), customLogDir);
   } else {
-    logDir = path.resolve(process.cwd(), 'logs', service);
+    baseDir = path.resolve(process.cwd(), 'logs');
   }
+
+  const logDir = path.join(baseDir, service);
 
   if (!fs.existsSync(logDir)) {
     try {

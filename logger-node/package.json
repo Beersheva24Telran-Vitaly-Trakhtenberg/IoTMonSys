@@ -1,42 +1,34 @@
 {
-  "name": "iotmonsys",
+  "name": "@iotmonsys/logger-node",
   "version": "1.0.0",
   "private": true,
   "author": "Vitaly Trakhtenberg",
-  "description": "The IoT-devices monitoring system, based on microservice architect using AWS cloud services",
+  "description": "Shared logger for IoTMonSys",
   "license": "ISC",
-  "keywords": [],
   "type": "module",
-  "workspaces": [
-    "backend",
-    "frontend",
-    "lambdas",
-    "simulator",
-    "udp-listener",
-    "infra"
-  ],
-  "scripts": {
-    "start:backend": "yarn workspace backend start",
-    "start:frontend": "yarn workspace frontend start",
-    "build": "yarn workspaces run build",
-    "test": "yarn workspaces run test",
-    "prepare": "husky install",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js"
+    }
   },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "@typescript-eslint/parser": "^8.29.0",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-prettier": "^5.2.6",
-    "husky": "^8.0.0",
-    "lint-staged": "^15.5.0",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.2"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "dependencies": {
-    "mongodb": "^6.15.0"
+    "morgan": "^1.10.0",
+    "rotating-file-stream": "^3.2.1",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "logger",
+    "iotmonsys"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.com:Beersheva24Telran-Vitaly-Trakhtenberg/IoTMonSys.git",
+    "directory": "logger-node"
   }
 }
