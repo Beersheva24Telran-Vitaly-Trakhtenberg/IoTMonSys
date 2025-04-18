@@ -19,7 +19,7 @@
   "type": "commonjs",
   "dependencies": {
     "@iotmonsys/logger-node": "file:../logger-node",
-    "aws-sdk": "^2.1354.0",
+    "@aws-sdk/client-kinesis": "^3.0.0",
     "body-parser": "^2.2.0",
     "dotenv": "^16.0.3",
     "mongodb": "^5.1.0",
