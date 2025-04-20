@@ -79,7 +79,7 @@
 ### Что готовое добавлено:
 Перевод проекта на единый логер (модуль /logger-node), универсальный как для модулей в формате CommonJS (это работа с UDP), так и для модулей в формате ES6 (backend).
 
-Добавлена промежуточный бранч dev. В GitHub Actions добавлен скрипт, контроллирующий, чтобы push master был только через pull request (к dev).
+Добавлена промежуточный бранч dev. В GitHub Actions добавлен скрипт, контролирующий, чтобы push master был только через pull request (к dev).
 
 #### Остался не переключенный модуль udp-listener - надо сделать по примеру udp-simulator
 
@@ -90,3 +90,11 @@ git checkout master -- logger-node # загрузить логер
 cd udp-listener # войти в папку udp-listener
 npm install ../logger-node
 ```
+
+*18-04-2025:*
+### Что готовое добавлено:
+Полностью отработан и оттестирован на 3 модулях (simulator (CommonJS), udp-listener (CommonJS), backend (ES6) логер(отдельный модуль logger-node)).
+
+Проект переведен на ASW 3.0
+
+*20-04-2025:*
