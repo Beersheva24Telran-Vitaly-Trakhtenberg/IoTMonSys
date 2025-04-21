@@ -1,7 +1,7 @@
 const dgram = require('dgram');
 const { createLogger } = require('@iotmonsys/logger-node');
 const { validateDeviceData } = require('./utils/dataValidator');
-const { saveDeviceData } = require('./database/database');
+const { saveDeviceData } = require('./services/deviceDataService');
 const { sendToKinesis } = require('./services/kinesisService');
 
 class UdpListener {
@@ -27,7 +27,7 @@ class UdpListener {
           return;
         }
 
-        await saveDeviceData(this.db, data);
+        await saveDeviceData(data);
 
         if (process.env.USE_KINESIS === 'true') {
           try {

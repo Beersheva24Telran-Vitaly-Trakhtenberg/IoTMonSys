@@ -1,7 +1,7 @@
 const dgram = require('dgram');
 const UdpListener = require('../src/udpListener');
 const { validateDeviceData } = require('../src/utils/dataValidator');
-const { saveDeviceData } = require('../src/database/database');
+const { saveDeviceData } = require('../src/services/deviceDataService');
 const { sendToKinesis } = require('../src/services/kinesisService');
 
 jest.mock('dgram');

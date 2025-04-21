@@ -1,7 +1,9 @@
 const deviceData = require('../models/deviceData');
 const Device = require('../models/Device');
-const { createLogger } = require('@iotmonsys/logger-node');
+const { findDeviceById, createDevice, updateDevice } = require('../repositories/deviceRepository');
+const { createDeviceData } = require('../repositories/deviceDataRepository');
 
+const { createLogger } = require('@iotmonsys/logger-node');
 const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)
@@ -49,6 +51,7 @@ const getDiscoveryMode = () => {
  * @returns {Promise<Object>}
  */
 const saveDeviceData = async (data) => {
+  logger.debug(`saveDeviceData: Data received from device: ${JSON.stringify(data)}`);
   try {
     const device = await Device.findOne({ deviceId: data.deviceId });
     const timestamp = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
@@ -56,7 +59,7 @@ const saveDeviceData = async (data) => {
     if (!device) {
 
       if (discoveryMode) {
-        const newDevice = new Device({
+        const newDeviceDetails = new Device({
           deviceId: data.deviceId,
           name: `New ${data.type.charAt(0).toUpperCase() + data.type.slice(1)} Device`,
           type: data.type,
@@ -64,15 +67,15 @@ const saveDeviceData = async (data) => {
           lastDataReceived: new Date(data.timestamp)
         });
 
-        await newDevice.save();
-        logger.info(`A new device has been discovered: ${data.deviceId} (needs approvement).`);
+        await createDevice(newDeviceDetails);
+        logger.info(`A new device has been discovered: ${data.deviceId} (needs a manual improvement).`);
 
-        const currentDeviceData = new deviceData({
+        const newDeviceDataInstance = new deviceData({
           ...data,
           timestamp
         });
 
-        const savedData = await currentDeviceData.save(); // FixMe
+        const savedData = await createDeviceData(data);
         logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
 
         return savedData;
@@ -84,14 +87,16 @@ const saveDeviceData = async (data) => {
 
     if (device.status === 'pending') {
       logger.debug(`Received data from an 'pending device: ${data.deviceId}.`);
+    } else if (device.status === 'inactive') {
+      logger.debug(`Service: Received data from 'inactive' device: ${data.deviceId}. Saving data and updating status.`);
+      device.status = 'active';
     }
-
-    const deviceData = new DeviceData({
+    const newDeviceDataInstance = new deviceData({
       ...data,
       timestamp
     });
 
-    const savedData = await deviceData.save();
+    const savedData = await createDeviceData(data);
     logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
 
     await updateDeviceInfo(device, data);
@@ -110,22 +115,25 @@ const saveDeviceData = async (data) => {
  * @returns {Promise<Object>}
  */
 const updateDeviceInfo = async (device, data) => {
+  logger.debug(`updateDeviceInfo: Data received from device: ${JSON.stringify(data)}`);
   try {
     const timestamp = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
+    const updateDetails = {
+      lastDataReceived: timestamp
+    };
 
-    device.lastDataReceived = timestamp;
-    device.updatedAt = new Date();
-
-    if (device.status === 'inactive' && !['pending', 'maintenance', 'broken'].includes(device.status)) {
-      device.status = 'active';
+    if (device.status === 'inactive' || device.status === 'pending') {
+      if (device.status !== 'pending') {
+        updateDetails.status = 'active';
+        logger.info(`Service: Device ${device.deviceId} status changed to active.`);
+      }
     }
 
-    await device.save();
-    logger.debug(`Information about device updated for device: ${data.deviceId}. `);
-
-    return device;
+    const updatedDevice = await updateDevice(device, updateDetails); // Используем функцию из deviceRepository
+    logger.debug(`Service: Device info updated for device: ${data.deviceId}`);
+    return updatedDevice;
   } catch (error) {
-    logger.error(`Error(s) updating device's data: ${error.message}.`);
+    logger.error(`Service: Error during updateDeviceInfo for ${device.deviceId}: ${error.message}`);
     throw error;
   }
 };
