@@ -29,7 +29,6 @@ async function connectDB(uri = process.env.MONGODB_URI) {
       connectTimeoutMS: 10000,
     };
 
-    logger.debug(`Connection string: ${uri}, options: ` + Object.keys(options) + `, logger: ` + Object.keys(logger));
     await mongoose.connect(uri, options);
 
     logger.info('Connection to MongoDB Atlas successfully established.');
