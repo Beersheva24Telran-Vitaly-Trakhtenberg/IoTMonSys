@@ -21,6 +21,7 @@ public class DeviceEventHandler implements RequestStreamHandler {
         logger.log("Received event: " + eventJson);
 
         String topicArn = System.getenv("SNS_TOPIC_ARN");
+        logger.log("SNS_TOPIC_ARN: " + topicArn);
         if (topicArn != null && !topicArn.isEmpty()) {
             AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
             snsClient.publish(topicArn, "New event from IoTMonSys: " + eventJson, "IoTMonSys Alert");
