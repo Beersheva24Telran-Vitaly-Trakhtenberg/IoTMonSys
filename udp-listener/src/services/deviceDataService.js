@@ -57,7 +57,6 @@ const saveDeviceData = async (data) => {
     const timestamp = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
 
     if (!device) {
-
       if (discoveryMode) {
         const newDeviceDetails = new Device({
           deviceId: data.deviceId,

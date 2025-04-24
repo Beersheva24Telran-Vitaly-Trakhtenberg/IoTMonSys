@@ -40,7 +40,8 @@ const deviceSchema = new mongoose.Schema({
       'active',
       'inactive',
       'broken',
-      'maintenance'
+      'maintenance',
+      'pending'
     ],
     default: 'active',
   },
