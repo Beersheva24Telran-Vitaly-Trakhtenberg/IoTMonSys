@@ -31,6 +31,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
         logger.log("[EVENT] DeviceAdded: " + eventJson);
 
         String response = "";
+        String endPoint = "https://uwi10frym6.execute-api.us-east-1.amazonaws.com/devices";
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(eventJson);
@@ -73,9 +74,9 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                             .compact();
 
                     String deviceManagementInitialString = "!!!\nYou can approve this device or remove this one. Or do nothing, device will wait in 'pending' status.\n";
-                    String approveDeviceString = "Click the link to approve this device: " + "https://iot-mon-sys.com/devices/" + deviceIdString + "/approve?token=" + tokenApprove;
-                    String blockDeviceString = "Click the link to block this device: " + "https://iot-mon-sys.com/devices/" + deviceIdString + "/block?token=" + tokenBlock;
-                    String removeDeviceString = "Click the link to remove this device: " + "https://iot-mon-sys.com/devices/" + deviceIdString + "/remove?token=" + tokenRemove;
+                    String approveDeviceString = "Click the link to approve this device: " + endPoint + "/" +deviceIdString + "/approve?token=" + tokenApprove;
+                    String blockDeviceString = "Click the link to block this device: " + endPoint + "/" + deviceIdString + "/block?token=" + tokenBlock;
+                    String removeDeviceString = "Click the link to remove this device: " + endPoint + "/" + deviceIdString + "/remove?token=" + tokenRemove;
                     String deviceManagementString = deviceManagementInitialString +
                             approveDeviceString + "\n" +
                             blockDeviceString + "\n" +
