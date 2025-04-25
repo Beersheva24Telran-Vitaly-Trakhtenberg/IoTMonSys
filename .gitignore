@@ -1,6 +1,7 @@
 node_modules/
 .env
 .env.*
+*/.env
 *.lock
 *-lock.json
 logs/
