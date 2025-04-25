@@ -58,7 +58,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                     logger.log("[DEBUG] SNS notification via email sent.");
                     snsClient.publish(new PublishRequest()
                             .withSubject("IoTMonSys Alert: New device added")
-                            .withPhoneNumber("++375296523901")
+                            .withPhoneNumber("+375296523901")
                             .withMessage("deviceId " + deviceIdString + ": " + deviceNameString + " (" + deviceTypeString + ")"));
                     logger.log("[DEBUG] SNS notification via sms sent.");
                     response = "{\"statusCode\":200,\"body\":\"OK\"}";
