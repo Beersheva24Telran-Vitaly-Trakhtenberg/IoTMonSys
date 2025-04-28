@@ -52,9 +52,9 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
                 } else if (rawPath.matches("/devices/.+/block")) {
                     action = "block";
                     deviceId = rawPath.replaceAll("/devices/([^/]+)/block", "$1");
-                } else if (rawPath.matches("/devices/.+/delete")) {
-                    action = "delete";
-                    deviceId = rawPath.replaceAll("/devices/([^/]+)/delete", "$1");
+                } else if (rawPath.matches("/devices/.+/remove")) {
+                    action = "remove";
+                    deviceId = rawPath.replaceAll("/devices/([^/]+)/remove", "$1");
                 }
 
                 if (deviceId == null || action == null) {
@@ -84,7 +84,7 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
                                     Document filter = new Document("deviceId", deviceId);
 
                                     devices.updateOne(filter, update);
-                                } else if (action.equals("delete")) {
+                                } else if (action.equals("remove")) {
                                     Document filter = new Document("deviceId", deviceId);
                                     devices.deleteOne(filter);
                                 }
