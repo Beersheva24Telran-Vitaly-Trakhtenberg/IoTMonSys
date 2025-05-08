@@ -1,0 +1,55 @@
+2025-04-21 15:01:13:113 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-21 15:01:25:125 [udp-sender] info: UDP client closed
+2025-04-21 15:13:01:131 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-21 15:13:11:1311 [udp-sender] info: UDP client closed
+2025-04-21 15:20:30:2030 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-21 15:20:38:2038 [udp-sender] info: UDP client closed
+2025-04-23 16:23:19:2319 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-23 16:23:26:2326 [udp-sender] info: UDP client closed
+2025-04-23 16:25:00:250 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-23 16:25:23:2523 [udp-sender] info: UDP client closed
+2025-04-23 16:28:12:2812 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-23 16:28:26:2826 [udp-sender] info: UDP client closed
+2025-04-23 16:40:33:4033 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-23 16:40:43:4043 [udp-sender] info: UDP client closed
+2025-04-23 16:44:13:4413 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-23 16:44:22:4422 [udp-sender] info: UDP client closed
+2025-04-24 22:14:04:144 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:14:11:1411 [udp-sender] info: UDP client closed
+2025-04-24 22:16:23:1623 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:16:39:1639 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:16:48:1648 [udp-sender] info: UDP client closed
+2025-04-24 22:23:08:238 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:23:14:2314 [udp-sender] info: UDP client closed
+2025-04-24 22:32:32:3232 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:32:37:3237 [udp-sender] info: UDP client closed
+2025-04-24 22:41:21:4121 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:41:36:4136 [udp-sender] info: UDP client closed
+2025-04-24 22:46:31:4631 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:46:39:4639 [udp-sender] info: UDP client closed
+2025-04-24 22:53:26:5326 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:53:30:5330 [udp-sender] info: UDP client closed
+2025-04-24 22:56:39:5639 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 22:56:45:5645 [udp-sender] info: UDP client closed
+2025-04-24 23:04:50:450 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 23:04:54:454 [udp-sender] info: UDP client closed
+2025-04-24 23:06:16:616 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-24 23:06:21:621 [udp-sender] info: UDP client closed
+2025-04-25 09:48:15:4815 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 09:48:20:4820 [udp-sender] info: UDP client closed
+2025-04-25 10:21:26:2126 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 10:21:32:2132 [udp-sender] info: UDP client closed
+2025-04-25 12:09:23:923 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 12:09:29:929 [udp-sender] info: UDP client closed
+2025-04-25 13:24:21:2421 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 13:24:29:2429 [udp-sender] info: UDP client closed
+2025-04-25 13:29:31:2931 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 13:29:36:2936 [udp-sender] info: UDP client closed
+2025-04-25 13:31:23:3123 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 13:31:30:3130 [udp-sender] info: UDP client closed
+2025-04-25 20:39:41:3941 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 20:39:48:3948 [udp-sender] info: UDP client closed
+2025-04-25 20:42:16:4216 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 20:42:23:4223 [udp-sender] info: UDP client closed
+2025-04-25 20:54:29:5429 [udp-sender] info: UDP sender initialized for localhost:41234
+2025-04-25 20:54:39:5439 [udp-sender] info: UDP client closed

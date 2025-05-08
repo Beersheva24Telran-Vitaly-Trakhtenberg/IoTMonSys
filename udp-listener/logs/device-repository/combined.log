@@ -1,0 +1,252 @@
+2025-04-23 16:40:34:4034 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:34:4034 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:35:4035 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:35:4035 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:35:4035 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:35:4035 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:36:4036 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:36:4036 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:36:4036 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:36:4036 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:38:4038 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:40:4040 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:40:40:4040 [device-repository] error: Repo: Error creating device: Device validation failed: status: `pending` is not a valid enum value for path `status`.
+2025-04-23 16:44:14:4414 [device-repository] debug: Repo: Device dev-4719416c created with ID: 6808eeadf44e7474574c3784
+2025-04-23 16:44:14:4414 [device-repository] debug: Repo: Device dev-d4c30fb1 created with ID: 6808eeadf44e7474574c3787
+2025-04-23 16:44:14:4414 [device-repository] debug: Repo: Device dev-e528afc5 created with ID: 6808eeaef44e7474574c378a
+2025-04-23 16:44:15:4415 [device-repository] debug: Repo: Device dev-57ca4b5d created with ID: 6808eeaef44e7474574c378d
+2025-04-23 16:44:15:4415 [device-repository] debug: Repo: Device dev-745d3ea7 created with ID: 6808eeaef44e7474574c3796
+2025-04-23 16:44:15:4415 [device-repository] debug: Repo: Device dev-f4e2f2c5 created with ID: 6808eeaef44e7474574c3799
+2025-04-23 16:44:15:4415 [device-repository] debug: Repo: Device dev-7e3c8548 created with ID: 6808eeaff44e7474574c37a8
+2025-04-23 16:44:15:4415 [device-repository] debug: Repo: Device dev-90626446 created with ID: 6808eeaff44e7474574c37ab
+2025-04-23 16:44:16:4416 [device-repository] debug: Repo: Device dev-77283b85 created with ID: 6808eeaef44e7474574c3793
+2025-04-23 16:44:16:4416 [device-repository] debug: Repo: Device dev-5fb087b6 created with ID: 6808eeaef44e7474574c3790
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-d4c30fb1 updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-4719416c updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-90626446 updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-7e3c8548 updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-57ca4b5d updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-f4e2f2c5 updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-e528afc5 updated.
+2025-04-23 16:44:19:4419 [device-repository] debug: Repo: Device dev-745d3ea7 updated.
+2025-04-23 16:44:20:4420 [device-repository] debug: Repo: Device dev-5fb087b6 updated.
+2025-04-23 16:44:20:4420 [device-repository] debug: Repo: Device dev-77283b85 updated.
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-34a8963e created with ID: 680a8d7c23498700157df9aa
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-bf32a170 created with ID: 680a8d7c23498700157df9ad
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-9766ae9a created with ID: 680a8d7c23498700157df9b0
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-1dc68bd2 created with ID: 680a8d7c23498700157df9b3
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-b230f880 created with ID: 680a8d7d23498700157df9bc
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-ca5821da created with ID: 680a8d7d23498700157df9bf
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-0436c824 created with ID: 680a8d7d23498700157df9ce
+2025-04-24 22:14:05:145 [device-repository] debug: Repo: Device dev-c8706b0c created with ID: 680a8d7d23498700157df9d1
+2025-04-24 22:14:06:146 [device-repository] debug: Repo: Device dev-7203df77 created with ID: 680a8d7d23498700157df9b9
+2025-04-24 22:14:06:146 [device-repository] debug: Repo: Device dev-c982c60a created with ID: 680a8d7d23498700157df9b6
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-34a8963e updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-c982c60a updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-c8706b0c updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-bf32a170 updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-0436c824 updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-9766ae9a updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-b230f880 updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-ca5821da updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-1dc68bd2 updated.
+2025-04-24 22:14:10:1410 [device-repository] debug: Repo: Device dev-7203df77 updated.
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-ec3599e2 created with ID: 680a8e17a8714216555ed91d
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-f8c4edb7 created with ID: 680a8e17a8714216555ed920
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-6cb28d18 created with ID: 680a8e17a8714216555ed923
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-a658c406 created with ID: 680a8e17a8714216555ed926
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-f2d130ab created with ID: 680a8e17a8714216555ed92f
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-7f8b68ab created with ID: 680a8e17a8714216555ed932
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-38552c62 created with ID: 680a8e18a8714216555ed941
+2025-04-24 22:16:40:1640 [device-repository] debug: Repo: Device dev-fb00354b created with ID: 680a8e18a8714216555ed944
+2025-04-24 22:16:41:1641 [device-repository] debug: Repo: Device dev-bf81145c created with ID: 680a8e17a8714216555ed929
+2025-04-24 22:16:41:1641 [device-repository] debug: Repo: Device dev-22d55c14 created with ID: 680a8e17a8714216555ed92c
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-fb00354b updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-ec3599e2 updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-bf81145c updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-f8c4edb7 updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-38552c62 updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-6cb28d18 updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-f2d130ab updated.
+2025-04-24 22:16:44:1644 [device-repository] debug: Repo: Device dev-7f8b68ab updated.
+2025-04-24 22:16:45:1645 [device-repository] debug: Repo: Device dev-22d55c14 updated.
+2025-04-24 22:16:45:1645 [device-repository] debug: Repo: Device dev-a658c406 updated.
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-d9a13abf created with ID: 680a8f9d98f30f446412bd0a
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-26e52178 created with ID: 680a8f9d98f30f446412bd0d
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-43e02394 created with ID: 680a8f9d98f30f446412bd10
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-2291c3ab created with ID: 680a8f9d98f30f446412bd13
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-2e6197cb created with ID: 680a8f9d98f30f446412bd1c
+2025-04-24 22:23:09:239 [device-repository] debug: Repo: Device dev-9e70f7d4 created with ID: 680a8f9d98f30f446412bd1f
+2025-04-24 22:23:10:2310 [device-repository] debug: Repo: Device dev-e40be36c created with ID: 680a8f9d98f30f446412bd2e
+2025-04-24 22:23:10:2310 [device-repository] debug: Repo: Device dev-e9b7eadc created with ID: 680a8f9d98f30f446412bd31
+2025-04-24 22:23:10:2310 [device-repository] debug: Repo: Device dev-c57cfbc4 created with ID: 680a8f9d98f30f446412bd16
+2025-04-24 22:23:10:2310 [device-repository] debug: Repo: Device dev-961d63e6 created with ID: 680a8f9d98f30f446412bd19
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-e9b7eadc updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-2291c3ab updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-e40be36c updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-26e52178 updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-d9a13abf updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-43e02394 updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-961d63e6 updated.
+2025-04-24 22:23:14:2314 [device-repository] debug: Repo: Device dev-2e6197cb updated.
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-bf2e5fef created with ID: 680a91d026002ab8a20e8945
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-7d1967da created with ID: 680a91d026002ab8a20e8948
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-1a18acb5 created with ID: 680a91d026002ab8a20e894b
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-6413bd85 created with ID: 680a91d026002ab8a20e894e
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-b5f99e54 created with ID: 680a91d026002ab8a20e8957
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-84c640db created with ID: 680a91d026002ab8a20e895a
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-bf98c5b5 created with ID: 680a91d126002ab8a20e8969
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-51627d63 created with ID: 680a91d126002ab8a20e896c
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-96aff46c created with ID: 680a91d026002ab8a20e8954
+2025-04-24 22:32:33:3233 [device-repository] debug: Repo: Device dev-b75577aa created with ID: 680a91d026002ab8a20e8951
+2025-04-24 22:41:21:4121 [device-repository] debug: Repo: Device dev-91a671a4 created with ID: 680a93e1f37b801e3398f842
+2025-04-24 22:41:21:4121 [device-repository] debug: Repo: Device dev-e5dcab34 created with ID: 680a93e1f37b801e3398f845
+2025-04-24 22:41:21:4121 [device-repository] debug: Repo: Device dev-280b724f created with ID: 680a93e1f37b801e3398f848
+2025-04-24 22:41:21:4121 [device-repository] debug: Repo: Device dev-c0350ff1 created with ID: 680a93e1f37b801e3398f84b
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-8bc389c6 created with ID: 680a93e1f37b801e3398f84e
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-b7ef9230 created with ID: 680a93e1f37b801e3398f851
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-46a3fae6 created with ID: 680a93e1f37b801e3398f854
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-d19e827a created with ID: 680a93e1f37b801e3398f857
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-3fae240e created with ID: 680a93e2f37b801e3398f872
+2025-04-24 22:41:22:4122 [device-repository] debug: Repo: Device dev-0bc00fb1 created with ID: 680a93e2f37b801e3398f875
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-0bc00fb1 updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-3fae240e updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-c0350ff1 updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-e5dcab34 updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-91a671a4 updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-280b724f updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-d19e827a updated.
+2025-04-24 22:41:26:4126 [device-repository] debug: Repo: Device dev-46a3fae6 updated.
+2025-04-24 22:41:27:4127 [device-repository] debug: Repo: Device dev-8bc389c6 updated.
+2025-04-24 22:41:27:4127 [device-repository] debug: Repo: Device dev-b7ef9230 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-b7ef9230 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-c0350ff1 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-8bc389c6 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-3fae240e updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-e5dcab34 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-91a671a4 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-0bc00fb1 updated.
+2025-04-24 22:41:31:4131 [device-repository] debug: Repo: Device dev-280b724f updated.
+2025-04-24 22:41:32:4132 [device-repository] debug: Repo: Device dev-46a3fae6 updated.
+2025-04-24 22:41:32:4132 [device-repository] debug: Repo: Device dev-d19e827a updated.
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-c09761a6 created with ID: 680a95176e27d3a813298c7c
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-674a5114 created with ID: 680a95176e27d3a813298c7f
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-b2d12f0a created with ID: 680a95186e27d3a813298c82
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-8081805d created with ID: 680a95186e27d3a813298c85
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-6012a5d7 created with ID: 680a95186e27d3a813298c8e
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-1598c9ae created with ID: 680a95186e27d3a813298c91
+2025-04-24 22:46:32:4632 [device-repository] debug: Repo: Device dev-3d5dbd9d created with ID: 680a95186e27d3a813298ca0
+2025-04-24 22:46:33:4633 [device-repository] debug: Repo: Device dev-e7c293a0 created with ID: 680a95186e27d3a813298ca3
+2025-04-24 22:46:33:4633 [device-repository] debug: Repo: Device dev-267e79a5 created with ID: 680a95186e27d3a813298c88
+2025-04-24 22:46:33:4633 [device-repository] debug: Repo: Device dev-d359979d created with ID: 680a95186e27d3a813298c8b
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-c09761a6 updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-e7c293a0 updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-b2d12f0a updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-8081805d updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-3d5dbd9d updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-674a5114 updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-1598c9ae updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-6012a5d7 updated.
+2025-04-24 22:46:37:4637 [device-repository] debug: Repo: Device dev-d359979d updated.
+2025-04-24 22:46:38:4638 [device-repository] debug: Repo: Device dev-267e79a5 updated.
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-25adb6ff created with ID: 680a96b611bc7cdfb064b46c
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-df184bb7 created with ID: 680a96b611bc7cdfb064b46f
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-e76865b8 created with ID: 680a96b611bc7cdfb064b472
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-0fa587f4 created with ID: 680a96b611bc7cdfb064b475
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-017688e6 created with ID: 680a96b611bc7cdfb064b47e
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-71fec10a created with ID: 680a96b611bc7cdfb064b481
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-9de04897 created with ID: 680a96b711bc7cdfb064b490
+2025-04-24 22:53:27:5327 [device-repository] debug: Repo: Device dev-c1f1171f created with ID: 680a96b711bc7cdfb064b493
+2025-04-24 22:53:28:5328 [device-repository] debug: Repo: Device dev-72a42874 created with ID: 680a96b611bc7cdfb064b47b
+2025-04-24 22:53:28:5328 [device-repository] debug: Repo: Device dev-f97cfd2c created with ID: 680a96b611bc7cdfb064b478
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-aee8891e created with ID: 680a977750d1c6e8b278047a
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-4a729739 created with ID: 680a977750d1c6e8b278047d
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-f1da26b9 created with ID: 680a977850d1c6e8b2780480
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-f1eeeb8f created with ID: 680a977850d1c6e8b2780483
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-f3005c82 created with ID: 680a977850d1c6e8b278048c
+2025-04-24 22:56:40:5640 [device-repository] debug: Repo: Device dev-d8bcdfa9 created with ID: 680a977850d1c6e8b278048f
+2025-04-24 22:56:41:5641 [device-repository] debug: Repo: Device dev-cb6f3479 created with ID: 680a977850d1c6e8b278049e
+2025-04-24 22:56:41:5641 [device-repository] debug: Repo: Device dev-8146bc7b created with ID: 680a977850d1c6e8b27804a1
+2025-04-24 22:56:41:5641 [device-repository] debug: Repo: Device dev-07a42cfe created with ID: 680a977850d1c6e8b2780486
+2025-04-24 22:56:41:5641 [device-repository] debug: Repo: Device dev-e7d2c6af created with ID: 680a977850d1c6e8b2780489
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-aee8891e updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-cb6f3479 updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-f1eeeb8f updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-8146bc7b updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-f1da26b9 updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-4a729739 updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-f3005c82 updated.
+2025-04-24 22:56:45:5645 [device-repository] debug: Repo: Device dev-d8bcdfa9 updated.
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-c316c447 created with ID: 680a9962e7fda69e4b4ca3bb
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-0ec6b0be created with ID: 680a9962e7fda69e4b4ca3b8
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-a0596133 created with ID: 680a9963e7fda69e4b4ca3be
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-72c73ddf created with ID: 680a9963e7fda69e4b4ca3c1
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-94b22aab created with ID: 680a9963e7fda69e4b4ca3ca
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-e92dd1be created with ID: 680a9963e7fda69e4b4ca3cd
+2025-04-24 23:04:51:451 [device-repository] debug: Repo: Device dev-d0283fb9 created with ID: 680a9963e7fda69e4b4ca3dc
+2025-04-24 23:04:52:452 [device-repository] debug: Repo: Device dev-d6910639 created with ID: 680a9963e7fda69e4b4ca3df
+2025-04-24 23:04:52:452 [device-repository] debug: Repo: Device dev-62321ad6 created with ID: 680a9963e7fda69e4b4ca3c4
+2025-04-24 23:04:52:452 [device-repository] debug: Repo: Device dev-0f710c19 created with ID: 680a9963e7fda69e4b4ca3c7
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-a67baf69 created with ID: 680a99b805d49077226f6e52
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-8dfcd40e created with ID: 680a99b805d49077226f6e55
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-7295425b created with ID: 680a99b805d49077226f6e58
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-a641b804 created with ID: 680a99b805d49077226f6e5b
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-5e259f01 created with ID: 680a99b905d49077226f6e64
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-6f139deb created with ID: 680a99b905d49077226f6e67
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-50b2e587 created with ID: 680a99b905d49077226f6e76
+2025-04-24 23:06:17:617 [device-repository] debug: Repo: Device dev-deb6673e created with ID: 680a99b905d49077226f6e79
+2025-04-24 23:06:18:618 [device-repository] debug: Repo: Device dev-fcd89b0d created with ID: 680a99b905d49077226f6e5e
+2025-04-24 23:06:18:618 [device-repository] debug: Repo: Device dev-189d5879 created with ID: 680a99b905d49077226f6e61
+2025-04-25 09:48:15:4815 [device-repository] debug: Repo: Device dev-7ab9bab5 created with ID: 680b302fe02637edaf48d8b9
+2025-04-25 09:48:15:4815 [device-repository] debug: Repo: Device dev-a97681a2 created with ID: 680b302fe02637edaf48d8bc
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-5ee5ebf9 created with ID: 680b37f616bf362672b00c36
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-413b3e80 created with ID: 680b37f616bf362672b00c39
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-de331665 created with ID: 680b37f716bf362672b00c3c
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-2a19e51d created with ID: 680b37f716bf362672b00c3f
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-4a033f30 created with ID: 680b37f716bf362672b00c48
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-903f5171 created with ID: 680b37f716bf362672b00c4b
+2025-04-25 10:21:27:2127 [device-repository] debug: Repo: Device dev-7a993783 created with ID: 680b37f716bf362672b00c57
+2025-04-25 10:21:28:2128 [device-repository] debug: Repo: Device dev-22ee95e9 created with ID: 680b37f716bf362672b00c5d
+2025-04-25 10:21:28:2128 [device-repository] debug: Repo: Device dev-8bcdbd93 created with ID: 680b37f716bf362672b00c42
+2025-04-25 10:21:28:2128 [device-repository] debug: Repo: Device dev-83ff7109 created with ID: 680b37f716bf362672b00c45
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-22ee95e9 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-de331665 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-5ee5ebf9 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-413b3e80 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-2a19e51d updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-83ff7109 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-4a033f30 updated.
+2025-04-25 10:21:32:2132 [device-repository] debug: Repo: Device dev-7a993783 updated.
+2025-04-25 12:09:24:924 [device-repository] debug: Repo: Device dev-1914c8bd created with ID: 680b5144bcaa4b11c306a490
+2025-04-25 12:09:24:924 [device-repository] debug: Repo: Device dev-9cf4915a created with ID: 680b5144bcaa4b11c306a493
+2025-04-25 12:09:29:929 [device-repository] debug: Repo: Device dev-1914c8bd updated.
+2025-04-25 12:09:29:929 [device-repository] debug: Repo: Device dev-9cf4915a updated.
+2025-04-25 13:24:21:2421 [device-repository] debug: Repo: Device dev-e52e4b25 created with ID: 680b62d5cb118f176c20c375
+2025-04-25 13:24:21:2421 [device-repository] debug: Repo: Device dev-dfb2e8dd created with ID: 680b62d5cb118f176c20c378
+2025-04-25 13:24:27:2427 [device-repository] debug: Repo: Device dev-dfb2e8dd updated.
+2025-04-25 13:24:27:2427 [device-repository] debug: Repo: Device dev-e52e4b25 updated.
+2025-04-25 13:29:32:2932 [device-repository] debug: Repo: Device dev-9039e7a4 created with ID: 680b640c51d29e35c85681e0
+2025-04-25 13:29:32:2932 [device-repository] debug: Repo: Device dev-59c1592f created with ID: 680b640c51d29e35c85681e3
+2025-04-25 13:31:23:3123 [device-repository] debug: Repo: Device dev-9681d219 created with ID: 680b647b36282d018dfd8697
+2025-04-25 13:31:23:3123 [device-repository] debug: Repo: Device dev-b116384f created with ID: 680b647b36282d018dfd869a
+2025-04-25 13:31:29:3129 [device-repository] debug: Repo: Device dev-b116384f updated.
+2025-04-25 13:31:29:3129 [device-repository] debug: Repo: Device dev-9681d219 updated.
+2025-04-25 20:39:41:3941 [device-repository] debug: Repo: Device dev-5014d033 created with ID: 680bc8dd46d13ef80d95776e
+2025-04-25 20:39:41:3941 [device-repository] debug: Repo: Device dev-7e70f2d1 created with ID: 680bc8dd46d13ef80d957771
+2025-04-25 20:39:46:3946 [device-repository] debug: Repo: Device dev-5014d033 updated.
+2025-04-25 20:39:46:3946 [device-repository] debug: Repo: Device dev-7e70f2d1 updated.
+2025-04-25 20:42:17:4217 [device-repository] debug: Repo: Device dev-0d2d6553 created with ID: 680bc97933d022601108344a
+2025-04-25 20:42:17:4217 [device-repository] debug: Repo: Device dev-0b434eb9 created with ID: 680bc97933d022601108344d
+2025-04-25 20:42:22:4222 [device-repository] debug: Repo: Device dev-0b434eb9 updated.
+2025-04-25 20:42:22:4222 [device-repository] debug: Repo: Device dev-0d2d6553 updated.
+2025-04-25 20:54:30:5430 [device-repository] debug: Repo: Device dev-8936f55b created with ID: 680bcc55ac05610b5c883ae1
+2025-04-25 20:54:30:5430 [device-repository] debug: Repo: Device dev-1dbb0d50 created with ID: 680bcc55ac05610b5c883ae4
+2025-04-25 20:54:35:5435 [device-repository] debug: Repo: Device dev-1dbb0d50 updated.
+2025-04-25 20:54:35:5435 [device-repository] debug: Repo: Device dev-8936f55b updated.

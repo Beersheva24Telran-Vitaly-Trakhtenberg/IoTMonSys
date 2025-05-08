@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: IoTMonSys Lambda Functions with Shared Layer
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: java21
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        MONGODB_URI: !Ref MongoDbUri
+        MONGODB_DB: !Ref MongoDbName
+        JWT_SECRET: !Ref JwtSecret
+        SNS_TOPIC_ARN: !Ref SnsTopicArn
+
+Parameters:
+  MongoDbUri:
+    Type: String
+    Description: MongoDB connection URI
+    NoEcho: true
+  
+  MongoDbName:
+    Type: String
+    Description: MongoDB database name
+  
+  JwtSecret:
+    Type: String
+    Description: Secret key for JWT token generation
+    NoEcho: true
+  
+  SnsTopicArn:
+    Type: String
+    Description: ARN of the SNS topic for notifications
+
+Resources:
+  # Shared Dependencies Layer
+  SharedDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: iotmonsys-shared-dependencies
+      Description: Shared dependencies for IoTMonSys Lambda functions
+      ContentUri: ./shared-dependencies/target/shared-dependencies-1.0-SNAPSHOT-lambda-layer.zip
+      CompatibleRuntimes:
+        - java21
+      RetentionPolicy: Retain
+
+  # Lambda Functions
+  ApproveBlockRemoveDeviceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: iotmonsys-approve-block-remove-device
+      CodeUri: ./functions/target/functions-1.0-SNAPSHOT.jar
+      Handler: optdev.iotmonsys.lambdas.ApproveBlockRemoveDeviceHandler::handleRequest
+      Layers:
+        - !Ref SharedDependenciesLayer
+      Events:
+        ApiApproveEvent:
+          Type: Api
+          Properties:
+            Path: /devices/{deviceId}/approve
+            Method: get
+        ApiBlockEvent:
+          Type: Api
+          Properties:
+            Path: /devices/{deviceId}/block
+            Method: get
+        ApiRemoveEvent:
+          Type: Api
+          Properties:
+            Path: /devices/{deviceId}/remove
+            Method: get
+
+  DeviceAddedEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: iotmonsys-device-added-event
+      CodeUri: ./functions/target/functions-1.0-SNAPSHOT.jar
+      Handler: optdev.iotmonsys.lambdas.DeviceAddedEventHandler::handleRequest
+      Layers:
+        - !Ref SharedDependenciesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /devices
+            Method: post
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  
+  DeviceAddedEventFunction:
+    Description: "Device Added Event Lambda Function ARN"
+    Value: !GetAtt DeviceAddedEventFunction.Arn
+  
+  ApproveBlockRemoveDeviceFunction:
+    Description: "Approve/Block/Remove Device Lambda Function ARN"
+    Value: !GetAtt ApproveBlockRemoveDeviceFunction.Arn
+  
+  SharedDependenciesLayer:
+    Description: "Shared Dependencies Layer ARN"
+    Value: !Ref SharedDependenciesLayer

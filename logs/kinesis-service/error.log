@@ -1,0 +1,8 @@
+2025-04-18 10:25:39:2539 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 20:45:03:453 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 20:51:41:5141 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 20:54:07:547 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 20:56:14:5614 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 20:57:38:5738 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 21:40:56:4056 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
+2025-04-20 21:41:57:4157 [kinesis-service] error: Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.
