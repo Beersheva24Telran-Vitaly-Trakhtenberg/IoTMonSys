@@ -4,13 +4,15 @@ A universal logging module for the IoTMonSys project with advanced features, inc
 
 ## Features
 
-- Structured logging in JSON-formate
-- Log file rotation
+- Structured logging in JSON format
+- Flexible log format selection (text for development, JSON for production)
+- Log file rotation with compression
 - AWS CloudWatch Logs integration
-- Contextual logging (trace ID, request ID)
+- Contextual logging (trace ID, request ID, operation ID, device ID, user ID)
 - Enhanced logging levels and colors for better visibility and filtering
 - Metadata logging (hostname, environment, service name)
 - Middleware for HTTP-requests with automated tracing
+- Error handling middleware
 - Compatible with both ESM and CommonJS modules (import/require)
 
 ## Setup
@@ -60,6 +62,54 @@ logger.info('Processing device data');
 clearLoggerContext();
 ```
 
+Additional examples for contextual logging.
+
+```javascript
+const { createLogger, setLoggerContext, clearLoggerContext } = require('@iotmonsys/logger-node');
+
+const logger = createLogger('my-service', './logs');
+
+function processDevice(deviceId, data) {
+  setLoggerContext({ 
+    operationId: 'process-device',
+    deviceId: deviceId
+  });
+  
+  try {
+    logger.info(`Processing device data`); // Log will contain the deviceId ab=nd the operationId
+    // ... data processing ...
+    logger.info(`Device data processed successfully`);
+    return result;
+  } catch (error) {
+    logger.error(`Error processing device data: ${error.message}`);
+    throw error;
+  } finally {
+    // Clear context after operation finished
+    clearLoggerContext();
+  }
+}
+```
+
+Or a more convenient way using ```withOperationContext``` method.
+
+```javascript
+const { createLogger } = require('@iotmonsys/logger-node');
+
+const logger = createLogger('my-service', './logs');
+
+function processDevice(deviceId, data) {
+  return logger.withOperationContext(
+    { operationId: 'process-device', deviceId },
+    () => {
+      logger.info(`Processing device data`); // with context
+      // ... data processing ...
+      logger.info(`Device data processed successfully`); // with context
+      return result;
+    }
+  );
+}
+```
+
 ### HTTP-logger with tracing middleware.
 
 ```javascript
@@ -100,7 +150,11 @@ AWS_CLOUDWATCH_ENABLED=true
 AWS_CLOUDWATCH_GROUP=IoTMonSys-ServiceName
 AWS_CLOUDWATCH_STREAM=instance-name
 AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
 ```
+
+> **Note**: When using `LOG_FORMAT=text` with `AWS_CLOUDWATCH_ENABLED=true`, your local logs will be in text format, but CloudWatch will still receive JSON-formatted logs for better analysis and filtering.
 
 ## Logging levels
 
@@ -111,29 +165,46 @@ AWS_REGION=us-east-1
 - `http`: 4 - Logging HTTP requests
 - `debug`: 5 - Debugging information
 
-## Logs formats
+## Log Formats
 
-### Console output 
+The logger supports two output formats that can be configured via the `LOG_FORMAT` environment variable:
 
+### Text Format (`LOG_FORMAT=text`)
+
+Human-readable format with colors in console, ideal for development:
+
+```log
+2025-06-12 17:14:51:1451 [udp-listener] INFO [trace:abc123] [operation:process-data]: Device data processed successfully
 ```
-2025-06-11 19:15:23:456 [my-service] info [trace-id] [request-id]: Message
-```
 
-### Files output and CloudWatch output (JSON)
+In the console, this format is displayed with colors:
+- Timestamp: gray
+- Service name (`[udp-listener]`): blue
+- Logging level (`INFO`): green for info, yellow for warn, red for error
+- Context (`[trace:abc123]`): purple
+- Message: white
+
+This makes the logs more readable and allows you to quickly highlight important information.
+
+### JSON Format (`LOG_FORMAT=json`)
+
+Machine-readable format, ideal for production and CloudWatch integration:
 
 ```json
 {
-  "timestamp": "2025-06-11T19:15:23.456Z",
+  "timestamp": "2025-06-12T17:14:51.451Z",
   "level": "info",
-  "message": "Message",
-  "service": "my-service",
+  "message": "Device data processed successfully",
+  "service": "udp-listener",
   "hostname": "server-name",
-  "environment": "development",
-  "traceId": "trace-id",
-  "requestId": "request-id",
-  "deviceId": "device-123"
+  "environment": "production",
+  "traceId": "abc123",
+  "operationId": "process-data",
+  "deviceId": "device-456"
 }
 ```
+
+> **Important**: CloudWatch logs are always sent in JSON format regardless of the `LOG_FORMAT` setting to ensure proper parsing and analysis in AWS CloudWatch.
 
 ## Settings
 
@@ -147,3 +218,5 @@ The logging module uses the following environment variables:
 | AWS_CLOUDWATCH_GROUP | CloudWatch log group name | - |
 | AWS_CLOUDWATCH_STREAM | CloudWatch log stream name (default: hostname-date) | - |
 | AWS_REGION | AWS region | - |
+| AWS_ACCESS_KEY_ID | AWS access key ID | - |
+| AWS_SECRET_ACCESS_KEY | AWS secret access key | - |
