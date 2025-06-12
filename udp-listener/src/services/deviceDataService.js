@@ -4,6 +4,7 @@ const { findDeviceById, createDevice, updateDevice } = require('../repositories/
 const { createDeviceData } = require('../repositories/deviceDataRepository');
 
 const { createLogger } = require('@iotmonsys/logger-node');
+
 const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)
@@ -51,7 +52,9 @@ const getDiscoveryMode = () => {
  * @returns {Promise<Object>}
  */
 const saveDeviceData = async (data) => {
-  logger.debug(`saveDeviceData: Data received from device: ${JSON.stringify(data)}`);
+  logger.withOperationContext({ deviceId: data.deviceId, operationId: uuidv4() });
+  logger.info(`Processing data from device ${data.deviceId}`);
+  
   try {
     const device = await Device.findOne({ deviceId: data.deviceId });
     const timestamp = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
@@ -77,9 +80,11 @@ const saveDeviceData = async (data) => {
         const savedData = await createDeviceData(data);
         logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
 
+        logger.clearContext();
         return savedData;
       } else {
         logger.warn(`Received data from an unregistered device: ${data.deviceId}. Data rejected.`);
+        logger.clearContext();
         return null;
       }
     }
@@ -100,9 +105,11 @@ const saveDeviceData = async (data) => {
 
     await updateDeviceInfo(device, data);
 
+    logger.clearContext();
     return savedData;
   } catch (error) {
     logger.error(`Error(s) saving device's data: ${error.message}. `);
+    logger.clearContext();
     throw error;
   }
 };

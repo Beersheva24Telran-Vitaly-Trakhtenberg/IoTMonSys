@@ -2,9 +2,14 @@ import winston from 'winston';
 import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
-import * as rfs from 'rotating-file-stream';
+import os from 'os';
+import 'winston-cloudwatch';
+import { v4 as uuidv4 } from 'uuid';
 
 console.log('--- LOGGER-NODE MODULE LOADED ---');
+
+// Creating a namespace for storing the logging context
+const contextStorage = new Map();
 
 const levels = {
   alert: 0,
@@ -31,16 +36,63 @@ const level = () => {
 };
 
 /**
+ * Generates a unique identifier for tracking requests
+ * @returns {string} Unique identifier
+ */
+function generateTraceId() {
+  return uuidv4();
+}
+
+/**
+ * Sets the context for the current request or operation.
+ * @param {Object} context - Object with context data.
+ */
+function setContext(context) {
+  const currentContext = contextStorage.get('current') || {};
+  contextStorage.set('current', { ...currentContext, ...context });
+}
+
+/**
+ * Gets the current logging context.
+ * @returns {Object} Current logging context
+ */
+function getContext() {
+  return contextStorage.get('current') || {};
+}
+
+/**
+ * Clears the context for the current request
+ */
+function clearContext() {
+  contextStorage.delete('current');
+}
+
+/**
+ * Sets the log format based on an environment variable
+ * @returns {string} 'text' OR 'json'
+ */
+const logFormat = () => {
+  // By default, use text format for development and json for production.
+  const defaultFormat = process.env.NODE_ENV === 'development' ? 'text' : 'json';
+  // but it possible to customize that via LOG_FORMAT variable
+  return process.env.LOG_FORMAT || defaultFormat;
+};
+
+/**
  * @param {string} service
  * @param {string|null} customLogDir
+ * @param {Object} options - Additional options for the logger
  * @returns {winston.Logger}
  */
-function createLoggerFunction(service, customLogDir = null) {
+function createLoggerFunction(service, customLogDir = null, options = {}) {
   if (!service) {
     service = 'default';
     console.warn('Logger service name not provided, using "default".');
   }
 
+  const env = process.env.NODE_ENV || 'development';
+  const hostname = os.hostname();
+  
   let baseDir;
   if (customLogDir && path.isAbsolute(customLogDir)) {
     baseDir = customLogDir;
@@ -60,37 +112,61 @@ function createLoggerFunction(service, customLogDir = null) {
     }
   }
 
-  const createRfsStream = (filename) => {
-    try {
-      return rfs.createStream(filename, {
-        interval: '1d',
-        path: logDir,
-        size: '10M',
-        compress: 'gzip',
-      });
-    } catch (err) {
-      console.error(`Failed to create rotating file stream for ${filename} in ${logDir}:`, err);
-      return null;
-    }
-  };
-
-  const errorLogStream = createRfsStream('error.log');
-  const combinedLogStream = createRfsStream('combined.log');
-
-  const consoleFormat = winston.format.combine(
+  const consoleFormat = logFormat() === 'text' ? winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.colorize({ all: true }),
     winston.format.printf(
-      (info) => `${info.timestamp} [${service}] ${info.level}: ${info.message}`
+      (info) => {
+        const context = getContext();
+        const traceId = context.traceId || '-';
+        const requestId = context.requestId || '-';
+        return `${info.timestamp} [${service}] ${info.level} [${traceId}] [${requestId}]: ${info.message}${info.stack ? '\n' + info.stack : ''}`;
+      }
     )
-  );
+  ) : winston.format.json();
 
-  const fileFormat = winston.format.combine(
+  const fileFormat = logFormat() === 'text' ? winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.printf(
-      (info) => `${info.timestamp} [${service}] ${info.level}: ${info.message}`
+      (info) => {
+        const context = getContext();
+        const traceId = context.traceId || '-';
+        const requestId = context.requestId || '-';
+        const operationId = context.operationId || '-';
+        const deviceId = context.deviceId || '-';
+        const userId = context.userId || '-';
+        
+        let contextStr = `[trace:${traceId}]`;
+        if (operationId !== '-') contextStr += ` [op:${operationId}]`;
+        if (deviceId !== '-') contextStr += ` [device:${deviceId}]`;
+        if (userId !== '-') contextStr += ` [user:${userId}]`;
+        
+        return `${info.timestamp} [${info.service}] ${info.level.toUpperCase()} ${contextStr}: ${info.message}${info.stack ? '\n' + info.stack : ''}`;
+      }
     )
+  ) : winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+    winston.format.json()
   );
+
+  const cloudwatchFormat = winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  );
+
+  const addMetadata = winston.format((info) => {
+    const context = getContext();
+    info.service = service;
+    info.hostname = hostname;
+    info.environment = env;
+    
+    if (context.traceId) info.traceId = context.traceId;
+    if (context.requestId) info.requestId = context.requestId;
+    if (context.userId) info.userId = context.userId;
+    if (context.deviceId) info.deviceId = context.deviceId;
+    
+    return info;
+  });
 
   const transports = [
     new winston.transports.Console({
@@ -98,31 +174,88 @@ function createLoggerFunction(service, customLogDir = null) {
     }),
   ];
 
-  if (errorLogStream) {
-    transports.push(
-      new winston.transports.Stream({
-        stream: errorLogStream,
-        level: 'error',
-        format: fileFormat,
-      })
-    );
-  }
-  if (combinedLogStream) {
-    transports.push(
-      new winston.transports.Stream({
-        stream: combinedLogStream,
-        format: fileFormat,
-      })
-    );
+  // Adding file transports
+  transports.push(
+    new winston.transports.File({
+      filename: path.join(logDir, 'error.log'),
+      level: 'error',
+      format: winston.format.combine(
+        addMetadata(),
+        fileFormat
+      ),
+      maxsize: 10 * 1024 * 1024, // 10MB
+      maxFiles: 5,
+      tailable: true,
+      zippedArchive: true
+    })
+  );
+  
+  transports.push(
+    new winston.transports.File({
+      filename: path.join(logDir, 'combined.log'),
+      format: winston.format.combine(
+        addMetadata(),
+        fileFormat
+      ),
+      maxsize: 10 * 1024 * 1024, // 10MB
+      maxFiles: 5,
+      tailable: true,
+      zippedArchive: true
+    })
+  );
+
+  // Add CloudWatch transport if configured
+  if (process.env.AWS_CLOUDWATCH_ENABLED === 'true') {
+    try {
+      transports.push(
+        new winston.transports.CloudWatch({
+          logGroupName: process.env.AWS_CLOUDWATCH_GROUP || `IoTMonSys-${service}`,
+          logStreamName: process.env.AWS_CLOUDWATCH_STREAM || `${hostname}-${new Date().toISOString().slice(0, 10)}`,
+          awsRegion: process.env.AWS_REGION || 'us-east-1',
+          messageFormatter: ({ level, message, ...meta }) => {
+            return JSON.stringify({
+              level,
+              message,
+              ...meta,
+              timestamp: new Date().toISOString()
+            });
+          },
+          format: winston.format.combine(
+            addMetadata(),
+            cloudwatchFormat
+          ),
+        })
+      );
+    } catch (err) {
+      console.error('Failed to initialize CloudWatch transport:', err);
+    }
   }
 
-  return winston.createLogger({
+  const logger = winston.createLogger({
     level: level(),
     levels,
-    format: winston.format.errors({ stack: true }),
+    format: winston.format.combine(
+      winston.format.errors({ stack: true }),
+      addMetadata()
+    ),
     transports,
     exitOnError: false,
   });
+
+  // Extending the logger with methods for working with context
+  logger.setContext = setContext;
+  logger.getContext = getContext;
+  logger.clearContext = clearContext;
+  logger.generateTraceId = generateTraceId;
+  
+  // Adding a convenient method for creating an operational context
+  logger.withOperationContext = function(contextData = {}) {
+    const operationId = contextData.operationId || uuidv4();
+    setContext({ ...contextData, operationId });
+    return operationId;
+  };
+
+  return logger;
 }
 
 /**
@@ -140,6 +273,24 @@ function createHttpLoggerMiddleware(loggerInstance, options = {}) {
   const format = options.format || defaultFormat;
   const logOnlyAuthErrors = options.logOnlyAuthErrors || false;
 
+  // Creating middleware to add traceId and requestId to the request
+  const traceMiddleware = (req, res, next) => {
+    const traceId = req.headers['x-trace-id'] || loggerInstance.generateTraceId();
+    const requestId = req.headers['x-request-id'] || loggerInstance.generateTraceId();
+    
+    // Set the context for the current request
+    loggerInstance.setContext({ traceId, requestId });
+    
+    res.setHeader('X-Trace-ID', traceId);
+    res.setHeader('X-Request-ID', requestId);
+    
+    res.on('finish', () => {
+      loggerInstance.clearContext();
+    });
+    
+    next();
+  };
+
   const morganOptions = {
     stream: {
       write: (message) => {
@@ -155,14 +306,55 @@ function createHttpLoggerMiddleware(loggerInstance, options = {}) {
     return (req, res, next) => next();
   }
 
-  return morgan(format, morganOptions);
+  // Combining middleware for tracing with morgan
+  return (req, res, next) => {
+    traceMiddleware(req, res, () => {
+      morgan(format, morganOptions)(req, res, next);
+    });
+  };
+}
+
+/**
+ * Creates middleware for error handling and logging
+ * @param {winston.Logger} loggerInstance - Instance of Winston logger
+ * @returns {Function} - Error handling middleware
+ */
+function createErrorLoggerMiddleware(loggerInstance) {
+  return (err, req, res, next) => {
+    const context = loggerInstance.getContext();
+    const traceId = context.traceId || '-';
+    const requestId = context.requestId || '-';
+    
+    loggerInstance.error(`Error processing request: ${err.message}`, {
+      error: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+      body: req.body,
+      params: req.params,
+      query: req.query,
+      traceId,
+      requestId
+    });
+    
+    next(err);
+  };
 }
 
 const loggerLibrary = {
   createLogger: createLoggerFunction,
   createHttpLoggerMiddleware: createHttpLoggerMiddleware,
+  createErrorLoggerMiddleware: createErrorLoggerMiddleware,
+  setContext,
+  getContext,
+  clearContext,
+  generateTraceId
 };
 
 export const createHttpLogger = loggerLibrary.createHttpLoggerMiddleware;
 export const createLogger = loggerLibrary.createLogger;
+export const createErrorLogger = loggerLibrary.createErrorLoggerMiddleware;
+export const getLoggerContext = loggerLibrary.getContext;
+export const setLoggerContext = loggerLibrary.setContext;
+export const clearLoggerContext = loggerLibrary.clearContext;
+export const generateLoggerTraceId = loggerLibrary.generateTraceId;
 export default loggerLibrary;
