@@ -16,6 +16,8 @@ import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
+
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Date;
@@ -31,7 +33,8 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
         logger.log("[EVENT] DeviceAdded: " + eventJson);
 
         String response = "";
-        String endPoint = "https://uwi10frym6.execute-api.us-east-1.amazonaws.com/devices";
+        String endPoint = System.getenv("ENDPOINT");
+        String deviceEndPoint = endPoint + "devices/";
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(eventJson);
@@ -50,7 +53,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                         "\ndevice name:\t" + deviceNameString +
                         "\n\n";
 
-                String jwtSecret = System.getenv("JWT_SECRET");
+                String jwtSecret = SecretsManagerHelper.getSecret("IoTMonSys/JWTSecret");
                 if (jwtSecret != null && !jwtSecret.isEmpty()) {
                     Key key = new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
                     long expMillis = System.currentTimeMillis() + 10 * 60 * 1000;
@@ -74,9 +77,9 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                             .compact();
 
                     String deviceManagementInitialString = "!!!\nYou can approve this device or remove this one. Or do nothing, device will wait in 'pending' status.\n";
-                    String approveDeviceString = "Click the link to approve this device: " + endPoint + "/" +deviceIdString + "/approve?token=" + tokenApprove;
-                    String blockDeviceString = "Click the link to block this device: " + endPoint + "/" + deviceIdString + "/block?token=" + tokenBlock;
-                    String removeDeviceString = "Click the link to remove this device: " + endPoint + "/" + deviceIdString + "/remove?token=" + tokenRemove;
+                    String approveDeviceString = "Click the link to approve this device: " + deviceEndPoint +deviceIdString + "/approve?token=" + tokenApprove;
+                    String blockDeviceString = "Click the link to block this device: " + deviceEndPoint + deviceIdString + "/block?token=" + tokenBlock;
+                    String removeDeviceString = "Click the link to remove this device: " + deviceEndPoint + deviceIdString + "/remove?token=" + tokenRemove;
                     String deviceManagementString = deviceManagementInitialString +
                             approveDeviceString + "\n" +
                             blockDeviceString + "\n" +

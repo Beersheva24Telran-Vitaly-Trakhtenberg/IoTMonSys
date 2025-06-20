@@ -19,7 +19,10 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <aws-lambda-java-core.version>1.2.2</aws-lambda-java-core.version>
+        <aws-lambda-java-core.version>1.2.3</aws-lambda-java-core.version>
+        <aws-lambda-java-events.version>3.15.0</aws-lambda-java-events.version>
+        <aws.secretsmanager.version>2.31.64</aws.secretsmanager.version>
+        <aws.lambda.version>2.31.55</aws.lambda.version>
         <aws-java-sdk-sns.version>1.12.698</aws-java-sdk-sns.version>
         <aws-java-sdk.version>1.12.782</aws-java-sdk.version>
         <mongodb-driver.version>4.11.1</mongodb-driver.version>
@@ -34,6 +37,11 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-lambda-java-core</artifactId>
                 <version>${aws-lambda-java-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-lambda-java-events</artifactId>
+                <version>${aws-lambda-java-events.version}</version>
             </dependency>
 
             <!-- AWS SDK -->
@@ -50,6 +58,22 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-ses</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>lambda</artifactId>
+                <version>${aws.lambda.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>secretsmanager</artifactId>
+                <version>${aws.secretsmanager.version}</version>
+            </dependency>
+            <!-- AWS SDK for Secrets Manager -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-secretsmanager</artifactId>
                 <version>${aws-java-sdk.version}</version>
             </dependency>
 

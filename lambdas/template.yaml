@@ -2,6 +2,32 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: IoTMonSys Lambda Functions with Shared Layer
 
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues: [ dev, stage, prod ]
+
+  MongoDbUri:
+    Type: String
+    Description: MongoDB connection URI
+    NoEcho: true
+    Default: mongodb://localhost:27017
+
+  MongoDbName:
+    Type: String
+    Description: MongoDB database name
+
+  JwtSecret:
+    Type: String
+    Description: Secret key for JWT token generation
+    NoEcho: true
+    Default: secret
+
+  SnsTopicArn:
+    Type: String
+    Description: ARN of the SNS topic for notifications
+
 Globals:
   Function:
     Timeout: 30
@@ -11,74 +37,72 @@ Globals:
       - x86_64
     Environment:
       Variables:
+        STAGE: !Ref Stage
         MONGODB_URI: !Ref MongoDbUri
         MONGODB_DB: !Ref MongoDbName
         JWT_SECRET: !Ref JwtSecret
         SNS_TOPIC_ARN: !Ref SnsTopicArn
-
-Parameters:
-  MongoDbUri:
-    Type: String
-    Description: MongoDB connection URI
-    NoEcho: true
-  
-  MongoDbName:
-    Type: String
-    Description: MongoDB database name
-  
-  JwtSecret:
-    Type: String
-    Description: Secret key for JWT token generation
-    NoEcho: true
-  
-  SnsTopicArn:
-    Type: String
-    Description: ARN of the SNS topic for notifications
+        # ENDPOINT: !Sub https://${IoTMonSysApi}.execute-api.${AWS::Region}.amazonaws.com/
+    CodeUri: ./shared-dependencies/target/shared-dependencies-1.0-SNAPSHOT.jar
 
 Resources:
   # Shared Dependencies Layer
   SharedDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: iotmonsys-shared-dependencies
-      Description: Shared dependencies for IoTMonSys Lambda functions
+      LayerName: !Sub iotmonsys-${Stage}-shared-dependencies
+      Description: Shared dependencies for all IoTMonSys Lambda functions
       ContentUri: ./shared-dependencies/target/shared-dependencies-1.0-SNAPSHOT-lambda-layer.zip
       CompatibleRuntimes:
         - java21
       RetentionPolicy: Retain
 
+  # Serverless API Gateway
+  IoTMonSysApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      TracingEnabled: true
+
   # Lambda Functions
   ApproveBlockRemoveDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: iotmonsys-approve-block-remove-device
-      CodeUri: ./functions/target/functions-1.0-SNAPSHOT.jar
+      FunctionName: !Sub iotmonsys-${Stage}-approve-block-remove-device
+      Description: Handles device approval, blocking, and removal operations
       Handler: optdev.iotmonsys.lambdas.ApproveBlockRemoveDeviceHandler::handleRequest
+      #PermissionsBoundary: arn:aws:iam::394163297125:policy/IoTMonSys-DeveloperBoundary
+      Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Layers:
         - !Ref SharedDependenciesLayer
       Events:
-        ApiApproveEvent:
+        ApproveDevice:
           Type: Api
           Properties:
             Path: /devices/{deviceId}/approve
             Method: get
-        ApiBlockEvent:
+            RestApiId: !Ref IoTMonSysApi
+        BlockDevice:
           Type: Api
           Properties:
             Path: /devices/{deviceId}/block
             Method: get
-        ApiRemoveEvent:
+            RestApiId: !Ref IoTMonSysApi
+        RemoveDevice:
           Type: Api
           Properties:
             Path: /devices/{deviceId}/remove
             Method: get
+            RestApiId: !Ref IoTMonSysApi
 
   DeviceAddedEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: iotmonsys-device-added-event
-      CodeUri: ./functions/target/functions-1.0-SNAPSHOT.jar
+      FunctionName: !Sub iotmonsys-${Stage}-device-added-event
+      Description: Handles new device added event
       Handler: optdev.iotmonsys.lambdas.DeviceAddedEventHandler::handleRequest
+      #PermissionsBoundary: arn:aws:iam::394163297125:policy/IoTMonSys-DeveloperBoundary
+      Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Layers:
         - !Ref SharedDependenciesLayer
       Events:
@@ -87,11 +111,12 @@ Resources:
           Properties:
             Path: /devices
             Method: post
+            RestApiId: !Ref IoTMonSysApi
 
 Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${IoTMonSysApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
   
   DeviceAddedEventFunction:
     Description: "Device Added Event Lambda Function ARN"
