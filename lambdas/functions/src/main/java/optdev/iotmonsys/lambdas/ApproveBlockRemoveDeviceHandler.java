@@ -20,15 +20,17 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
+import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
+
 public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
-    private static final String MONGODB_URI = System.getenv("MONGODB_URI");
+    private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/MONGODB_URI");
     private static final String DB_NAME = System.getenv("MONGODB_DB");
     private static final String DEVICES_COLLECTION = "devices";
 
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
         LambdaLogger logger = context.getLogger();
-        String jwtSecret = System.getenv("JWT_SECRET");
+        String jwtSecret = SecretsManagerHelper.getSecret("IoTMonSys/JWTSecret");
         String response = "";
         boolean flagContinue = true;
 

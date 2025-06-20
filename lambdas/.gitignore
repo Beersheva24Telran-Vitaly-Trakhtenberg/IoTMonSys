@@ -56,3 +56,4 @@ buildNumber.properties
 ../simulator/logs/
 ../udp-listener/.env
 ../udp-listener/logs/
+/packaged.yaml

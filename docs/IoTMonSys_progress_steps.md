@@ -225,3 +225,21 @@ npm install ../logger-node
 2. Создание алертов на основе паттернов в логах
 3. Интеграция обновленной системы логирования с другими модулями проекта
 4. Рассмотрение возможности использования IAM ролей для EC2/ECS в продакшене
+
+*20-06-2025:*
+### Что сделано:
+* Настроен процесс сборки и деплоя модуля проекта lambdas на AWS SAM.
+* Подготовлена инструкция этого процесса: labdbas/README.md
+* Настроен AWS SECRETS для работы с секретами lambda-контейнеров (хелпер lambdas/functions/src/main/java/optdev/iotmonsys/lambdas/utils/SecretsManagerHelper.java)
+* API Gateway поднят и связан с функциями
+* Stack создан корректно без циклов и ошибок
+* Shared Layer на месте
+
+### Что готовое добавлено:
+
+### На будущее:
+#### Вопрос аутентификации для Lambda-функций (например, "ApproveBlockRemoveDeviceFunction has no authentication" при сборке).
+Возможные темы по этому направлению:
+* Варианты аутентификации для API Gateway (например, AWS_IAM, Cognito, Lambda Authorizer/Custom Authorizer, API Key и др.)
+* Как добавить авторизацию в SAM/CloudFormation шаблон
+* Как реализовать проверку JWT токенов или интеграцию с внешними identity-провайдерами
