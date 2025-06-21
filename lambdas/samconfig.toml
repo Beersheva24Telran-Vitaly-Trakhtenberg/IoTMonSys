@@ -1,0 +1,11 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "iotmonsys-lambda-stack"
+resolve_s3 = false
+s3_bucket = "iotmonsys-deploy-bucket"
+s3_prefix = "iotmonsys-lambda-stack"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Stage=\"dev\" MongoDbName=\"test\" SnsTopicArn=\"iotmonsys-alerts\""
+image_repositories = []

@@ -4,6 +4,7 @@ const { findDeviceById, createDevice, updateDevice } = require('../repositories/
 const { createDeviceData } = require('../repositories/deviceDataRepository');
 
 const { createLogger } = require('@iotmonsys/logger-node');
+
 const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)

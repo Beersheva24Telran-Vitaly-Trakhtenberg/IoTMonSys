@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
-import { logger } from "../utils/logger.js";
+import { createLogger } from "@iotmonsys/logger-node";
 import dotenv from 'dotenv';
+
 dotenv.config();
+
+let logger = createLogger('backend', './logs');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI_LEGACY, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(process.env.MONGODB_URI_LEGACY);
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     logger.error(`Error: ${error.message}`);
