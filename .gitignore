@@ -13,4 +13,13 @@ target/
 yarn.lock
 package-lock.json
 
-!/lambdas/shared-dependencies/dependency-reduced-pom.xml
+lambdas/shared-dependencies/dependency-reduced-pom.xml
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
