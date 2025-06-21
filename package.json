@@ -9,7 +9,6 @@
   "type": "module",
   "workspaces": [
     "backend",
-    "frontend",
     "lambdas",
     "simulator",
     "udp-listener",
@@ -38,5 +37,6 @@
   },
   "dependencies": {
     "mongodb": "^6.15.0"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
