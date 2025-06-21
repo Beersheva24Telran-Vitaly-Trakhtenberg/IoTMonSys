@@ -52,13 +52,14 @@ const getDiscoveryMode = () => {
  * @returns {Promise<Object>}
  */
 const saveDeviceData = async (data) => {
-  logger.withOperationContext({ deviceId: data.deviceId, operationId: uuidv4() });
+  logger.withOperationContext({ deviceId: data.deviceId });
   logger.info(`Processing data from device ${data.deviceId}`);
   
   try {
     const device = await Device.findOne({ deviceId: data.deviceId });
     const timestamp = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
 
+    let res = null;
     if (!device) {
       if (discoveryMode) {
         const newDeviceDetails = new Device({
@@ -71,42 +72,33 @@ const saveDeviceData = async (data) => {
 
         await createDevice(newDeviceDetails);
         logger.info(`A new device has been discovered: ${data.deviceId} (needs a manual improvement).`);
-
+        logger.debug(`Data from new device ${data.deviceId} in 'pending' status will not be saved.`);
+      } else {
+        logger.warn(`Received data from an unregistered device: ${data.deviceId}. Data rejected.`);
+      }
+    } else {
+      if (device.status === 'pending') {
+        logger.debug(`Received data from an 'pending device: ${data.deviceId}. Data will not be saved.`);
+      } else {
+        if (device.status === 'inactive') {
+          logger.debug(`Service: Received data from 'inactive' device: ${data.deviceId}. Saving data and updating status.`);
+          device.status = 'active';
+        }
         const newDeviceDataInstance = new deviceData({
           ...data,
-          timestamp
+          timestamp,
         });
 
         const savedData = await createDeviceData(data);
         logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
 
-        logger.clearContext();
-        return savedData;
-      } else {
-        logger.warn(`Received data from an unregistered device: ${data.deviceId}. Data rejected.`);
-        logger.clearContext();
-        return null;
+        await updateDeviceInfo(device, data);
+        res = savedData;
       }
     }
 
-    if (device.status === 'pending') {
-      logger.debug(`Received data from an 'pending device: ${data.deviceId}.`);
-    } else if (device.status === 'inactive') {
-      logger.debug(`Service: Received data from 'inactive' device: ${data.deviceId}. Saving data and updating status.`);
-      device.status = 'active';
-    }
-    const newDeviceDataInstance = new deviceData({
-      ...data,
-      timestamp
-    });
-
-    const savedData = await createDeviceData(data);
-    logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
-
-    await updateDeviceInfo(device, data);
-
     logger.clearContext();
-    return savedData;
+    return res;
   } catch (error) {
     logger.error(`Error(s) saving device's data: ${error.message}. `);
     logger.clearContext();
