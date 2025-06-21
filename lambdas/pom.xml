@@ -25,6 +25,7 @@
         <aws.lambda.version>2.31.55</aws.lambda.version>
         <aws-java-sdk-sns.version>1.12.698</aws-java-sdk-sns.version>
         <aws-java-sdk.version>1.12.782</aws-java-sdk.version>
+        <aws-java-sdk-ssm.version>1.12.782</aws-java-sdk-ssm.version>
         <mongodb-driver.version>4.11.1</mongodb-driver.version>
         <jjwt.version>0.11.5</jjwt.version>
         <json.version>20250107</json.version>
@@ -75,6 +76,12 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-secretsmanager</artifactId>
                 <version>${aws-java-sdk.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-ssm</artifactId>
+                <version>${aws-java-sdk-ssm.version}</version>
             </dependency>
 
             <!-- MongoDB -->
