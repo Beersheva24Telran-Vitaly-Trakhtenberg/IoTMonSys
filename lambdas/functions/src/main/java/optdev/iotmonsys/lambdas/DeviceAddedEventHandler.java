@@ -7,10 +7,10 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 
@@ -36,7 +36,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                 .reduce("", (acc, line) -> acc + line);
         logger.log("[EVENT] DeviceAdded: " + eventJson);
 
-        String response = "";
+        var response = "";
 
         String parameterName = System.getenv("API_ENDPOINT_PARAMETER");
         AWSSimpleSystemsManagement ssmClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
@@ -98,16 +98,23 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                 String topicArn = System.getenv("SNS_TOPIC_ARN");
                 if (topicArn != null && !topicArn.isEmpty()) {
                     AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-                    snsClient.publish(topicArn, emailText, "IoTMonSys Alert");
+                    PublishRequest publishRequest = new PublishRequest()
+                            .withTopicArn(topicArn)
+                            .withMessage(emailText)
+                            .withSubject("IoTMonSys Alert");
+                    snsClient.publish(publishRequest);
                     logger.log("[DEBUG] SNS notification via email sent.");
 
-                    boolean isSMSConfigured = false;
-                    if (isSMSConfigured) {
+                    boolean smsEnabled = Boolean.parseBoolean(System.getenv("SMS_ENABLED"));
+                    String smsPhoneNumber = System.getenv("SMS_PHONE_NUMBER");
+                    if (smsEnabled && smsPhoneNumber != null && !smsPhoneNumber.isEmpty()) {
+                        String smsMessage = "New device added: " + deviceIdString +
+                                           (deviceNameString.isEmpty() ? "" : " - " + deviceNameString) +
+                                           (deviceTypeString.isEmpty() ? "" : " (" + deviceTypeString + ")");
                         snsClient.publish(new PublishRequest()
-                                .withSubject("IoTMonSys Alert: New device added")
-                                .withPhoneNumber("+375296523901")
-                                .withMessage("deviceId " + deviceIdString + ": " + deviceNameString + " (" + deviceTypeString + ")"));
-                        logger.log("[DEBUG] SNS notification via sms sent.");
+                                .withPhoneNumber(smsPhoneNumber)
+                                .withMessage(smsMessage));
+                        logger.log("[DEBUG] SNS notification via SMS sent.");
                     }
 
                     response = "{\"statusCode\":200,\"body\":\"OK\"}";
