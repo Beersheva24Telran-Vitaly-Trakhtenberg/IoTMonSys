@@ -23,13 +23,14 @@ import java.security.Key;
 import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
 
 public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
-    private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/MONGODB_URI");
-    private static final String DB_NAME = System.getenv("MONGODB_DB");
+    private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/AtlasMongoDBCredentials");
+    private static final String MONGODB_DB = System.getenv("MONGODB_DB");
     private static final String DEVICES_COLLECTION = "devices";
 
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
         LambdaLogger logger = context.getLogger();
+
         String jwtSecret = SecretsManagerHelper.getSecret("IoTMonSys/JWTSecret");
         String response = "";
         boolean flagContinue = true;
@@ -77,7 +78,7 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
 
                         if (action.equals(tokenAction) && deviceId.equals(tokenDeviceId)) {
                             try (MongoClient mongoClient = MongoClients.create(MONGODB_URI)) {
-                                MongoDatabase db = mongoClient.getDatabase(DB_NAME);
+                                MongoDatabase db = mongoClient.getDatabase(MONGODB_DB);
                                 MongoCollection<Document> devices = db.getCollection(DEVICES_COLLECTION);
 
                                 if (action.equals("approve") || action.equals("block")) {

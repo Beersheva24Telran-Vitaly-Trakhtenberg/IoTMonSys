@@ -32,6 +32,22 @@ Parameters:
     Type: String
     Default: /iotmonsys/api-endpoint
     Description: Name of the SSM parameter to store the API endpoint URL
+    
+  KinesisStreamName:
+    Type: String
+    Default: IoTMonSys-DeviceData
+    Description: Name of the Kinesis Data Stream for device data
+    
+  SmsEnabled:
+    Type: String
+    Default: "false"
+    AllowedValues: [ "true", "false" ]
+    Description: Enable SMS notifications for anomaly alerts
+    
+  SmsPhoneNumber:
+    Type: String
+    Default: ""
+    Description: Phone number for SMS notifications (with country code, e.g. +375296523901)
 
 Globals:
   Function:
@@ -111,6 +127,10 @@ Resources:
             ParameterName: !Ref ApiEndpointParameterName
       Layers:
         - !Ref SharedDependenciesLayer
+      Environment:
+        Variables:
+          SMS_ENABLED: !Ref SmsEnabled
+          SMS_PHONE_NUMBER: !Ref SmsPhoneNumber
       Events:
         ApiEvent:
           Type: Api
@@ -118,6 +138,53 @@ Resources:
             Path: /devices
             Method: post
             RestApiId: !Ref IoTMonSysApi
+
+  DataProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub iotmonsys-${Stage}-data-processor
+      Description: Processes device data from Kinesis stream, detects anomalies and sends alerts
+      Handler: optdev.iotmonsys.lambdas.DataProcessorHandler::handleRequest
+      Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
+      Layers:
+        - !Ref SharedDependenciesLayer
+      Environment:
+        Variables:
+          ANOMALY_DETECTION_ENABLED: "true"
+          SMS_ENABLED: !Ref SmsEnabled
+          SMS_PHONE_NUMBER: !Ref SmsPhoneNumber
+      Events:
+        KinesisEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}
+            StartingPosition: LATEST
+            BatchSize: 100
+            MaximumBatchingWindowInSeconds: 10
+
+  ErrorPollerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub iotmonsys-${Stage}-error-poller
+      Description: Monitors devices for offline status and low battery levels
+      Handler: optdev.iotmonsys.lambdas.ErrorPollerHandler::handleRequest
+      Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
+      Layers:
+        - !Ref SharedDependenciesLayer
+      Environment:
+        Variables:
+          MONGODB_DB: !Ref MongoDbName
+          SNS_TOPIC_ARN: !Ref SnsTopicArn
+          SMS_ENABLED: !Ref SmsEnabled
+          SMS_PHONE_NUMBER: !Ref SmsPhoneNumber
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(15 minutes)
+            Name: !Sub iotmonsys-${Stage}-error-poller-schedule
+            Description: Runs the error poller every hour
+            Enabled: true
 
   # ApiEndpoint URL
   ApiEndpointParameter:
@@ -140,6 +207,14 @@ Outputs:
   ApproveBlockRemoveDeviceFunction:
     Description: "Approve/Block/Remove Device Lambda Function ARN"
     Value: !GetAtt ApproveBlockRemoveDeviceFunction.Arn
+  
+  DataProcessorFunction:
+    Description: "Data Processor Lambda Function ARN"
+    Value: !GetAtt DataProcessorFunction.Arn
+  
+  ErrorPollerFunction:
+    Description: "Error Poller Lambda Function ARN"
+    Value: !GetAtt ErrorPollerFunction.Arn
   
   SharedDependenciesLayer:
     Description: "Shared Dependencies Layer ARN"
