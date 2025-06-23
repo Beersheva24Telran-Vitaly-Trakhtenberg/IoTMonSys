@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
+import org.bson.conversions.Bson;
 
 import static optdev.iotmonsys.lambdas.utils.SNSHelper.sendNotification;
 
@@ -39,6 +40,9 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     private static final String SNS_TOPIC_ARN = System.getenv("SNS_TOPIC_ARN");
     private static final boolean SMS_ENABLED = Boolean.parseBoolean(System.getenv("SMS_ENABLED"));
     private static final String SMS_PHONE_NUMBER = System.getenv("SMS_PHONE_NUMBER");
+
+    // Battery level threshold (can be moved to environment variable)
+    private static final int BATTERY_LOW_THRESHOLD = 20; // 20%
 
     @Override
     public String handleRequest(KinesisEvent kinesisEvent, Context context) {
@@ -84,7 +88,45 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
                         logger.log("[DEBUG] Device is not active (status: " + storedStatus + "), skipping processing: " + deviceId);
                         continue;
                     }
-                    
+
+                    // Prepare updates for device document
+                    List<Bson> updates = new ArrayList<>();
+                    // Update lastDataReceived timestamp and reset offline alert flag
+                    updates.add(Updates.set("lastDataReceived", new Date()));
+                    updates.add(Updates.set("offlineAlertSent", false));
+
+                    // Check battery level if available and update lowBatteryAlertSent flag accordingly
+                    if (deviceData.has("batteryLevel")) {
+                        double batteryLevel = deviceData.get("batteryLevel").asDouble();
+                        String powerType = deviceDoc.getString("powerType");
+
+                        // Only check battery level for devices powered by battery
+                        if ("battery".equals(powerType)) {
+                            if (batteryLevel <= BATTERY_LOW_THRESHOLD) {
+                                if (!deviceDoc.getBoolean("lowBatteryAlertSent", false)) {
+                                    // Send low battery alert notification
+                                    sendNotification(
+                                            "IoTMonSys Alert: Low Battery",
+                                            "Low battery level detected for device " + deviceId + ": " + batteryLevel + "%",
+                                            "Low battery level detected for device " + deviceId + ": " + batteryLevel + "%",
+                                            logger
+                                    );
+                                    updates.add(Updates.set("lowBatteryAlertSent", true));
+                                }
+                                logger.log("[WARN] Low battery level detected for device " + deviceId + ": " + batteryLevel + "%");
+                            } else {
+                                // Reset low battery alert flag if battery level is OK
+                                updates.add(Updates.set("lowBatteryAlertSent", false));
+                            }
+                        }
+                    }
+
+                    // Apply all updates to device document
+                    deviceCollection.updateOne(
+                            Filters.eq("deviceId", deviceId),
+                            Updates.combine(updates)
+                    );
+
                     // Gets threshold values for the device from MongoDB
                     Document thresholds = deviceDoc.get("thresholds", Document.class);
                     if (thresholds == null) {
@@ -269,7 +311,7 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     }
     
     /**
-     * Отправляет уведомление об аномалии через SNS
+     * Sends a notification about the anomaly
      * 
      * @param deviceId ID устройства
      * @param deviceDoc Документ устройства

@@ -162,6 +162,30 @@ Resources:
             BatchSize: 100
             MaximumBatchingWindowInSeconds: 10
 
+  ErrorPollerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub iotmonsys-${Stage}-error-poller
+      Description: Monitors devices for offline status and low battery levels
+      Handler: optdev.iotmonsys.lambdas.ErrorPollerHandler::handleRequest
+      Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
+      Layers:
+        - !Ref SharedDependenciesLayer
+      Environment:
+        Variables:
+          MONGODB_DB: !Ref MongoDbName
+          SNS_TOPIC_ARN: !Ref SnsTopicArn
+          SMS_ENABLED: !Ref SmsEnabled
+          SMS_PHONE_NUMBER: !Ref SmsPhoneNumber
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(15 minutes)
+            Name: !Sub iotmonsys-${Stage}-error-poller-schedule
+            Description: Runs the error poller every hour
+            Enabled: true
+
   # ApiEndpoint URL
   ApiEndpointParameter:
     Type: AWS::SSM::Parameter
@@ -187,6 +211,10 @@ Outputs:
   DataProcessorFunction:
     Description: "Data Processor Lambda Function ARN"
     Value: !GetAtt DataProcessorFunction.Arn
+  
+  ErrorPollerFunction:
+    Description: "Error Poller Lambda Function ARN"
+    Value: !GetAtt ErrorPollerFunction.Arn
   
   SharedDependenciesLayer:
     Description: "Shared Dependencies Layer ARN"
