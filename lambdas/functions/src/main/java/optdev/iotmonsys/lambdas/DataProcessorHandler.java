@@ -5,10 +5,6 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent.KinesisEventRecord;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,16 +17,17 @@ import com.mongodb.client.model.Updates;
 import org.bson.Document;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
 
+import static optdev.iotmonsys.lambdas.utils.SNSHelper.sendNotification;
+
 /**
- * Lambda функция для обработки данных устройств из Kinesis Data Stream.
- * Функция анализирует данные на наличие аномалий и отправляет уведомления при необходимости.
+ * Lambda function for processing device data from Kinesis Data Stream
+ * The function analyzes data for anomalies and sends notifications when necessary
  */
 public class DataProcessorHandler implements RequestHandler<KinesisEvent, String> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,8 +40,6 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     private static final boolean SMS_ENABLED = Boolean.parseBoolean(System.getenv("SMS_ENABLED"));
     private static final String SMS_PHONE_NUMBER = System.getenv("SMS_PHONE_NUMBER");
 
-    private final AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-    
     @Override
     public String handleRequest(KinesisEvent kinesisEvent, Context context) {
         LambdaLogger logger = context.getLogger();
@@ -62,56 +57,54 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
             
             for (KinesisEventRecord record : kinesisEvent.getRecords()) {
                 try {
-                    // Получение данных из Kinesis
+                    // Gets data from Kinesis
                     String data = new String(record.getKinesis().getData().array(), StandardCharsets.UTF_8);
                     JsonNode deviceData = objectMapper.readTree(data);
                     
-                    // Получение deviceId из данных
+                    // Gets deviceId from the data
                     String deviceId = deviceData.get("deviceId").asText();
                     String deviceStatus = deviceData.has("deviceStatus") ? deviceData.get("deviceStatus").asText() : "unknown";
                     
                     logger.log("[DEBUG] Processing data for device: " + deviceId + ", status: " + deviceStatus);
                     
-                    // Пропускаем данные от устройств со статусом "pending"
+                    // Skip data from devices that are not active or have pending status
                     if ("pending".equals(deviceStatus)) {
-                        logger.log("[INFO] Skipping data from device with 'pending' status: " + deviceId);
+                        logger.log("[DEBUG] Skipping data from device with 'pending' status: " + deviceId);
                         continue;
                     }
                     
-                    // Получение информации об устройстве из MongoDB
+                    // Reads device information from MongoDB and checks if the device is active
                     Document deviceDoc = deviceCollection.find(Filters.eq("deviceId", deviceId)).first();
                     if (deviceDoc == null) {
                         logger.log("[WARN] Device not found in database: " + deviceId);
                         continue;
                     }
-                    
-                    // Проверка статуса устройства
                     String storedStatus = deviceDoc.getString("status");
                     if (!"active".equals(storedStatus)) {
-                        logger.log("[INFO] Device is not active (status: " + storedStatus + "), skipping processing: " + deviceId);
+                        logger.log("[DEBUG] Device is not active (status: " + storedStatus + "), skipping processing: " + deviceId);
                         continue;
                     }
                     
-                    // Получение пороговых значений для устройства
+                    // Gets threshold values for the device from MongoDB
                     Document thresholds = deviceDoc.get("thresholds", Document.class);
                     if (thresholds == null) {
                         thresholds = new Document();
                     }
                     
-                    // Обработка данных и проверка на аномалии
+                    // Processing data and checks anomaly (anomaly detection)
                     Document processedData = processDeviceData(deviceData, thresholds);
                     boolean hasAnomalies = processedData.getBoolean("hasAnomalies", false);
                     
-                    // Сохранение обработанных данных
+                    // Store processed data in MongoDB
                     processedDataCollection.insertOne(processedData);
                     processedCount++;
                     
-                    // Если обнаружены аномалии, сохраняем их и отправляем уведомление
+                    // If anomaly detected, store it in MongoDB and send notification to SNS
                     if (hasAnomalies && ANOMALY_DETECTION_ENABLED) {
                         Document anomalyDoc = createAnomalyDocument(deviceId, deviceData, processedData);
                         anomaliesCollection.insertOne(anomalyDoc);
                         
-                        // Обновление статуса устройства, если есть серьезные аномалии
+                        // Update device status is the anomaly critical
                         if (isCriticalAnomaly(processedData)) {
                             deviceCollection.updateOne(
                                 Filters.eq("deviceId", deviceId),
@@ -122,7 +115,7 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
                             );
                         }
                         
-                        // Отправка уведомления через SNS
+                        // Sends SNS-notifications
                         sendAnomalyNotification(deviceId, deviceDoc, anomalyDoc, logger);
                         anomalyCount++;
                     }
@@ -138,11 +131,11 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     }
     
     /**
-     * Обрабатывает данные устройства и проверяет на аномалии
+     * Processes device data and checks for anomalies
      * 
-     * @param deviceData Данные устройства
-     * @param thresholds Пороговые значения для проверки аномалий
-     * @return Документ с обработанными данными
+     * @param deviceData Device data
+     * @param thresholds Threshold values for anomaly detection
+     * @return Document with processed data
      */
     private Document processDeviceData(JsonNode deviceData, Document thresholds) {
         Document processedDoc = new Document();
@@ -150,7 +143,7 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
         processedDoc.append("timestamp", deviceData.get("timestamp").asText());
         processedDoc.append("processedAt", new Date());
         
-        // Копирование измерений
+        // Copying measurements
         Document measurements = new Document();
         JsonNode measurementsNode = deviceData.get("measurements");
         boolean hasAnomalies = false;
@@ -167,7 +160,7 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
                     double numValue = value.asDouble();
                     measurements.append(key, numValue);
                     
-                    // Проверка на аномалии
+                    // Checking for anomalies
                     if (thresholds.containsKey(key)) {
                         Document thresholdDoc = thresholds.get(key, Document.class);
                         Double minValue = thresholdDoc.getDouble("min");
@@ -200,12 +193,12 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     }
     
     /**
-     * Создает документ с информацией об аномалии
+     * Creates a document with information about the anomaly
      * 
-     * @param deviceId ID устройства
-     * @param deviceData Данные устройства
-     * @param processedData Обработанные данные
-     * @return Документ с информацией об аномалии
+     * @param deviceId device ID
+     * @param deviceData device data
+     * @param processedData processed data
+     * @return Document containing information about the anomaly
      */
     private Document createAnomalyDocument(String deviceId, JsonNode deviceData, Document processedData) {
         Document anomalyDoc = new Document();
@@ -220,42 +213,40 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
     }
     
     /**
-     * Вычисляет уровень серьезности аномалии
+     * Calculates the severity of the anomaly
      * 
-     * @param processedData Обработанные данные
-     * @return Уровень серьезности (low, medium, high, critical)
+     * @param processedData processed data
+     * @return Severity level of the anomaly (low, medium, high, critical)
      */
     private String calculateAnomalySeverity(Document processedData) {
         Document anomalies = processedData.get("anomalies", Document.class);
         if (anomalies == null || anomalies.isEmpty()) {
             return "low";
         }
-        
-        // Простая логика определения серьезности аномалии
-        // В реальном проекте здесь может быть более сложная логика
+
+        // Simple logic for determining the severity of an anomaly
+        // Note: In a real project, the logic here may be more complex
         int anomalyCount = anomalies.size();
         if (anomalyCount >= 3) {
             return "critical";
         } else if (anomalyCount == 2) {
             return "high";
         } else if (anomalyCount == 1) {
-            // Проверка насколько значение отклоняется от порогового
+            // Checking how much the value deviates from the threshold
             for (String key : anomalies.keySet()) {
                 Document anomaly = anomalies.get(key, Document.class);
                 double value = anomaly.getDouble("value");
-                Double minObj = anomaly.containsKey("min") ? anomaly.getDouble("min") : Double.MIN_VALUE;
-                Double maxObj = anomaly.containsKey("max") ? anomaly.getDouble("max") : Double.MAX_VALUE;
-                double min = minObj;
-                double max = maxObj;
+                double minObj = anomaly.containsKey("min") ? anomaly.getDouble("min") : Double.MIN_VALUE;
+                double maxObj = anomaly.containsKey("max") ? anomaly.getDouble("max") : Double.MAX_VALUE;
                 String type = anomaly.getString("type");
                 
                 if ("below_min".equals(type)) {
-                    double deviation = (min - value) / min * 100;
+                    double deviation = (minObj - value) / minObj * 100;
                     if (deviation > 20) {
                         return "high";
                     }
                 } else if ("above_max".equals(type)) {
-                    double deviation = (value - max) / max * 100;
+                    double deviation = (value - maxObj) / maxObj * 100;
                     if (deviation > 20) {
                         return "high";
                     }
@@ -263,15 +254,14 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
             }
             return "medium";
         }
-        
         return "low";
     }
     
     /**
-     * Проверяет, является ли аномалия критической
+     * Checks if the anomaly is critical
      * 
-     * @param processedData Обработанные данные
-     * @return true, если аномалия критическая
+     * @param processedData processed data
+     * @return true, if anomaly is critical of high severity
      */
     private boolean isCriticalAnomaly(Document processedData) {
         String severity = calculateAnomalySeverity(processedData);
@@ -297,19 +287,19 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
             String timestamp = anomalyDoc.getString("timestamp");
             Date detectedAt = anomalyDoc.getDate("detectedAt");
             
-            // Форматирование времени
+            // Date/Time formating for the message
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
             String formattedTime = formatter.format(detectedAt.toInstant());
             
-            // Создание сообщения
+            // Create message
             StringBuilder messageBuilder = new StringBuilder();
             messageBuilder.append(String.format("ANOMALY ALERT: %s severity for device %s\n\n", severity.toUpperCase(), deviceName));
             messageBuilder.append(String.format("Device ID: %s\n", deviceId));
             messageBuilder.append(String.format("Detected at: %s\n", formattedTime));
             messageBuilder.append(String.format("Severity: %s\n\n", severity));
             
-            // Добавление информации об аномалиях
+            // Add info about anomaly(-es)
             Document anomalies = anomalyDoc.get("anomalies", Document.class);
             messageBuilder.append("Anomalies detected:\n");
             for (String key : anomalies.keySet()) {
@@ -328,34 +318,11 @@ public class DataProcessorHandler implements RequestHandler<KinesisEvent, String
             
             String message = messageBuilder.toString();
             String subject = String.format("[%s] Anomaly Alert for Device %s", severity.toUpperCase(), deviceName);
-            
-            // Отправка уведомления через SNS (Email)
-            if (SNS_TOPIC_ARN != null && !SNS_TOPIC_ARN.isEmpty()) {
-                PublishRequest publishRequest = new PublishRequest()
-                    .withTopicArn(SNS_TOPIC_ARN)
-                    .withMessage(message)
-                    .withSubject(subject);
-                snsClient.publish(publishRequest);
-                logger.log("[DEBUG] SNS notification via email sent.");
-            } else {
-                logger.log("[ERROR] No SNS_TOPIC_ARN in environment");
-            }
-            
-            // Отправка SMS-уведомления, если включено
-            if (SMS_ENABLED && SMS_PHONE_NUMBER != null && !SMS_PHONE_NUMBER.isEmpty()) {
-                // Сокращенное сообщение для SMS
-                String smsMessage = String.format("[%s] Alert: Device %s - %s", 
-                    severity.toUpperCase(), deviceName, 
+            String smsMessage = String.format("[%s] Alert: Device %s - %s",
+                    severity.toUpperCase(), deviceName,
                     anomalies.size() == 1 ? "1 anomaly" : anomalies.size() + " anomalies");
-                
-                PublishRequest publishRequest = new PublishRequest()
-                    .withPhoneNumber(SMS_PHONE_NUMBER)
-                    .withMessage(smsMessage);
-                
-                PublishResult publishResult = snsClient.publish(publishRequest);
-                logger.log("[DEBUG] SMS notification sent with message ID: " + publishResult.getMessageId());
-            }
-            
+
+            sendNotification(subject, message, smsMessage, logger);
         } catch (Exception e) {
             logger.log("[ERROR] Error sending anomaly notification: " + e);
         }
