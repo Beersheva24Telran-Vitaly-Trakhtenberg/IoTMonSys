@@ -65,7 +65,7 @@ logger.info(`UDP host: ${options.udpHost}:${options.udpPort}`);
 logger.info(`Port for command: ${options.commandPort}`);
 logger.info(`Frequency of anomalies: ${options.anomalyRate}%`);
 
-const deviceGenerator = new DeviceGenerator(deviceCount, anomalyRate);
+const deviceGenerator = new DeviceGenerator(deviceCount, sendInterval, anomalyRate, logger);
 const udpSender = new UdpSender(udpHost, udpPort);
 const commandReceiver = new CommandReceiver(commandPort);
 
