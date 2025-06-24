@@ -14,3 +14,15 @@ yarn.lock
 package-lock.json
 */yarn.lock
 */package-lock.json
+../package.json
+../.yarn/
+../.yarnrc.yml
+../logs/
+../lambdas/package.json
+../lambdas/packaged.yaml
+../udp-listener/.env
+../udp-listener/logs/
+../backend/.env
+../backend/logs/
+../frontend/.env
+../frontend/logs/
