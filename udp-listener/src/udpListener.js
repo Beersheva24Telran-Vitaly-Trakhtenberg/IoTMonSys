@@ -2,7 +2,6 @@ const dgram = require('dgram');
 const { createLogger } = require('@iotmonsys/logger-node');
 const { validateDeviceData } = require('./utils/dataValidator');
 const { saveDeviceData } = require('./services/deviceDataService');
-const { sendToKinesis } = require('./services/kinesisService');
 
 class UdpListener {
   constructor(host, port, db) {
@@ -28,15 +27,6 @@ class UdpListener {
         }
 
         await saveDeviceData(data);
-
-        if (process.env.USE_KINESIS === 'true') {
-          try {
-            await sendToKinesis(data);
-            this.logger.debug(`Data of device ${data.deviceId} sent to Kinesis sucessfully: ${JSON.stringify(data)}`);
-          } catch (kinesisError) {
-            this.logger.error(`Error sending data to Kinesis: ${kinesisError.message}`);
-          }
-        }
       } catch (error) {
         this.logger.error(`Error processing message: ${error.message}`);
       }

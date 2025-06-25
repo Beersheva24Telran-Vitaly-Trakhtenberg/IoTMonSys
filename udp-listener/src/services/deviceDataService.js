@@ -1,7 +1,9 @@
 const deviceData = require('../models/deviceData');
 const Device = require('../models/Device');
+const { POWER_TYPES, POWER_TYPES_ARRAY } = require('../constants/deviceTypes');
 const { findDeviceById, createDevice, updateDevice } = require('../repositories/deviceRepository');
 const { createDeviceData } = require('../repositories/deviceDataRepository');
+const { sendToKinesis } = require('./kinesisService');
 
 const { createLogger } = require('@iotmonsys/logger-node');
 
@@ -84,13 +86,33 @@ const saveDeviceData = async (data) => {
           logger.debug(`Service: Received data from 'inactive' device: ${data.deviceId}. Saving data and updating status.`);
           device.status = 'active';
         }
-        const newDeviceDataInstance = new deviceData({
-          ...data,
-          timestamp,
-        });
+        
+        // Добавляем информацию о типе питания и эталонном напряжении из устройства, если она отсутствует в данных
+        const dataToSave = { ...data, timestamp };
+        
+        if (data.powerType === undefined && device.powerType) {
+          dataToSave.powerType = device.powerType;
+          logger.debug(`Added powerType from device record: ${device.powerType}`);
+        }
+        
+        if (data.referenceVoltage === undefined && device.referenceVoltage) {
+          dataToSave.referenceVoltage = device.referenceVoltage;
+          logger.debug(`Added referenceVoltage from device record: ${device.referenceVoltage}`);
+        }
+        
+        const newDeviceDataInstance = new deviceData(dataToSave);
 
-        const savedData = await createDeviceData(data);
+        const savedData = await createDeviceData(dataToSave);
         logger.debug(`Data saved into MongoDB with ID: ${savedData._id}.`);
+
+        if (process.env.USE_KINESIS === 'true') {
+          try {
+            await sendToKinesis(dataToSave);
+            logger.debug(`Data of device ${dataToSave.deviceId} sent to Kinesis successfully`);
+          } catch (kinesisError) {
+            logger.error(`Error sending data to Kinesis: ${kinesisError.message}`);
+          }
+        }
 
         await updateDeviceInfo(device, data);
         res = savedData;
@@ -124,6 +146,18 @@ const updateDeviceInfo = async (device, data) => {
       if (device.status !== 'pending') {
         updateDetails.status = 'active';
         logger.info(`Service: Device ${device.deviceId} status changed to active.`);
+      }
+    }
+
+    if (data.powerType !== undefined) {
+      updateDetails.powerType = data.powerType;
+    }
+    if (data.powerType === POWER_TYPES.BATTERY || device.powerType === POWER_TYPES.BATTERY) {
+      if (data.batteryLevel !== undefined) {
+        updateDetails.batteryLevel = data.batteryLevel;
+      }
+      if (data.referenceVoltage !== undefined) {
+        updateDetails.referenceVoltage = data.referenceVoltage;
       }
     }
 
