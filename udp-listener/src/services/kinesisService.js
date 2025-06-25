@@ -16,20 +16,39 @@ if (!streamName) {
   logger.error('Kinesis stream name (KINESIS_STREAM_NAME) is not defined in environment variables. Kinesis service cannot function.');
 }
 
+/**
+ * Отправляет данные устройства в Kinesis Data Stream
+ * @param {Object} data - Данные устройства для отправки
+ * @param {string} [partitionKey] - Ключ партиции для Kinesis (по умолчанию deviceId)
+ * @returns {Promise<Object|null>} - Результат отправки или null в случае ошибки
+ */
 const sendToKinesis = async (data, partitionKey) => {
   if (!streamName) {
     logger.error('Cannot send to Kinesis: stream name is not configured.');
     return null;
   }
 
+  // Используем deviceId как ключ партиции для равномерного распределения данных
   if (!partitionKey) {
     partitionKey = data?.deviceId || data?.device_id || Date.now().toString();
     logger.warn(`Partition key was missing for Kinesis record. Using generated key: ${partitionKey}`);
   }
 
+  // Подготовка данных для отправки, включая информацию о батарее
+  const dataToSend = {
+    ...data,
+    timestamp: data.timestamp || new Date().toISOString(),
+    receivedAt: new Date().toISOString()
+  };
+
+  // Добавляем метаданные для трассировки
+  if (logger.getContext && logger.getContext()) {
+    dataToSend.traceId = logger.getContext().traceId;
+  }
+
   const params = {
     StreamName: streamName,
-    Data: Buffer.from(JSON.stringify(data)),
+    Data: Buffer.from(JSON.stringify(dataToSend)),
     PartitionKey: partitionKey,
   };
 
@@ -48,6 +67,14 @@ const sendToKinesis = async (data, partitionKey) => {
       errorMessage: error.message,
       requestId: error.$metadata?.requestId,
     });
+    
+    // Повторная попытка отправки с задержкой при определенных ошибках
+    if (error.name === 'ProvisionedThroughputExceededException') {
+      logger.info('Throughput exceeded. Will retry after delay.');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return sendToKinesis(data, partitionKey); // Рекурсивный вызов для повторной попытки
+    }
+    
     return null;
   }
 };
