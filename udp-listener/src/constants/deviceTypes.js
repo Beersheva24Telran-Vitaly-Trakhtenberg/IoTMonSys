@@ -12,6 +12,16 @@ const DATA_TYPES = {
   CONNECTION: 'connection'
 };
 
+const POWER_TYPES = {
+  BATTERY: 'battery',
+  SOLAR: 'solar',
+  ELECTRICITY: 'electricity',
+  WITHOUT: 'without',
+  OTHER: 'other'
+};
+
+const POWER_TYPES_ARRAY = Object.values(POWER_TYPES);
+
 const SENSOR_TYPES = [
   DATA_TYPES.TEMPERATURE,
   DATA_TYPES.HUMIDITY,
@@ -43,5 +53,7 @@ module.exports = {
   SENSOR_TYPES,
   DATA_VARIANTS,
   DEVICE_TYPES,
-  ALERT_TYPES
+  ALERT_TYPES,
+  POWER_TYPES,
+  POWER_TYPES_ARRAY
 };

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { DATA_VARIANTS } = require('../constants/deviceTypes');
+const { DATA_VARIANTS, POWER_TYPES_ARRAY } = require('../constants/deviceTypes');
 
 const deviceDataSchema = new mongoose.Schema({
   deviceId: {
@@ -26,6 +26,14 @@ const deviceDataSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     max: 100
+  },
+  referenceVoltage: {
+    type: Number,
+    min: 0
+  },
+  powerType: {
+    type: String,
+    enum: POWER_TYPES_ARRAY
   },
   receivedAt: {
     type: Date,
