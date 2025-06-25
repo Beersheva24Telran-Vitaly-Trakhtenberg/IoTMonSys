@@ -13,26 +13,68 @@ const DATA_TYPES = {
   BATTERY: 'battery'
 };
 
+const POWER_TYPES = {
+    BATTERY:'battery',
+    SOLAR: 'solar',
+    ELECTRICITY: 'electricity',
+    WITHOUT_POWER:'without',
+    OTHER_POWER_TYPES: 'other'
+};
+
+const ETALON_BATARY_LEVELS = {
+  1_5: 1.5,
+  1_8: 1.8,
+  3_0: 3.0,
+  3_6: 3.6,
+  4_5: 4.5,
+  9_0: 9.0,
+  12_0: 12.0,
+  18_0: 18.0,
+  24_0: 24.0
+}
+
 class DeviceGenerator {
   /**
    * @param {number} deviceCount
+   * @param {number} interval
    * @param {number} anomalyRate
+   * @param {Object} logger
    */
-  logger = loggerLibrary.createLogger('device-generator', './logs');
-
   constructor(
     deviceCount = 5,
-    anomalyRate = 5
+    interval = 5000,
+    anomalyRate = 5,
+    logger = null
   ) {
     this.deviceCount = deviceCount;
+    this.interval = interval;
     this.anomalyRate = anomalyRate;
+    
+    // Инициализируем логгер без явного указания формата, используя настройки из .env
+    this.logger = logger || loggerLibrary.createLogger('device-generator', './logs');
+    
+    // Создаем уникальный идентификатор для симулятора
+    this.simulatorId = `sim-${uuidv4().substring(0, 8)}`;
+    
+    // Устанавливаем контекст логгера для симулятора
+    if (this.logger && typeof this.logger.setContext === 'function') {
+      this.logger.setContext({
+        simulatorId: this.simulatorId,
+        deviceCount: this.deviceCount
+      });
+    }
+    
+    // Инициализируем устройства после настройки логгера
     this.devices = this._initializeDevices(deviceCount);
+    
     this.logger.info(`Initialized ${deviceCount} devices`);
   }
 
   _initializeDevices(count) {
     const devices = [];
-    const types = Object.values(DATA_TYPES);
+    const dataTypes = Object.values(DATA_TYPES);
+    const powerTypes = Object.values(POWER_TYPES);
+    const etalonPowerValues = Object.values(ETALON_BATARY_LEVELS);
 
     for (let i = 0; i < count; i++) {
       // Note: Определяем тип устройства (для простоты используем первые 3 типа чаще)
@@ -46,22 +88,58 @@ class DeviceGenerator {
       } else if (i < count * 0.9) {
         deviceType = DATA_TYPES.OPENING;
       } else {
-        deviceType = types[Math.floor(Math.random() * types.length)];
+        deviceType = dataTypes[Math.floor(Math.random() * dataTypes.length)];
       }
 
+      let powerType;
+      if (i < count * 0.4) {
+        powerType = POWER_TYPES.WITHOUT_POWER;
+      } else if (i < count * 0.6) {
+        powerType = POWER_TYPES.BATTERY;
+      } else if (i < count * 0.8) {
+        powerType = POWER_TYPES.ELECTRICITY;
+      } else if (i < count * 0.9) {
+        powerType = POWER_TYPES.SOLAR;
+      } else {
+        powerType = powerTypes[Math.floor(Math.random() * powerTypes.length)];
+      }
+
+      const deviceId = `dev-${uuidv4().substring(0, 8)}`;
+      
       const device = {
-        deviceId: `dev-${uuidv4().substring(0, 8)}`,
+        deviceId: deviceId,
         type: deviceType,
+        powerType: powerType,
         name: `${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)} Sensor ${i + 1}`,
         location: ['Kitchen', 'Guest Room', 'Sleep Room', 'Bathroom', 'Cabinet'][Math.floor(Math.random() * 5)],
         status: 'active',
-        batteryLevel: Math.floor(Math.random() * 100),
         lastValue: this._generateInitialValue(deviceType),
         anomalyMode: false
       };
 
+      // Добавляем свойства для устройств с батарейным питанием
+      if (device.powerType === POWER_TYPES.BATTERY) {
+        device.referenceVoltage = etalonPowerValues[Math.floor(Math.random() * etalonPowerValues.length)];
+        device.batteryLevel = Math.floor(Math.random() * 100); // Уровень заряда в процентах (0-100%)
+      }
+
+      // Устанавливаем контекст логгера для текущего устройства
+      if (this.logger && typeof this.logger.setContext === 'function') {
+        this.logger.setContext({ deviceId: deviceId });
+      }
+      
       devices.push(device);
       this.logger.debug(`Created device: ${JSON.stringify(device)}`);
+      
+      // Очищаем контекст устройства после логирования
+      if (this.logger && typeof this.logger.clearContext === 'function') {
+        this.logger.clearContext();
+        // Восстанавливаем контекст симулятора
+        this.logger.setContext({
+          simulatorId: this.simulatorId,
+          deviceCount: this.deviceCount
+        });
+      }
     }
 
     return devices;
@@ -93,6 +171,15 @@ class DeviceGenerator {
   }
 
   _updateValue(device) {
+    // Устанавливаем контекст логгера для текущего устройства
+    if (this.logger && typeof this.logger.setContext === 'function') {
+      this.logger.setContext({ 
+        deviceId: device.deviceId,
+        deviceType: device.type,
+        powerType: device.powerType
+      });
+    }
+    
     const type = device.type;
     let newValue = device.lastValue;
     let isAnomaly = false;
@@ -155,21 +242,58 @@ class DeviceGenerator {
       newValue = this._normalizeValue(type, newValue);
     }
 
-    // Обновление заряда батареи
-    device.batteryLevel = Math.max(0, device.batteryLevel - Math.random() * 0.2);
+    // Обновление заряда батареи только для устройств с батарейным питанием
+    if (device.powerType === POWER_TYPES.BATTERY) {
+      // Разная скорость разрядки в зависимости от типа устройства и наличия аномалий
+      let dischargeRate = Math.random() * 0.2; // Базовая скорость разрядки
+      
+      // Увеличиваем скорость разрядки при аномалиях
+      if (isAnomaly) {
+        dischargeRate *= 1.5;
+      }
+      
+      const oldBatteryLevel = device.batteryLevel;
+      device.batteryLevel = Math.max(0, device.batteryLevel - dischargeRate);
+      
+      // Логируем существенное изменение уровня заряда батареи
+      if (Math.floor(oldBatteryLevel) > Math.floor(device.batteryLevel)) {
+        this.logger.debug(`Battery level decreased from ${oldBatteryLevel.toFixed(2)}% to ${device.batteryLevel.toFixed(2)}% for device ${device.deviceId}`);
+        
+        // Логируем предупреждение при низком заряде батареи
+        if (device.batteryLevel < 20 && oldBatteryLevel >= 20) {
+          this.logger.warn(`Low battery level (${device.batteryLevel.toFixed(2)}%) for device ${device.deviceId}`);
+        }
+      }
+    }
 
     // Обновление последнего значения
     device.lastValue = newValue;
 
-    return {
+    // Формируем базовый объект с данными устройства
+    const result = {
       deviceId: device.deviceId,
       type,
       value: newValue,
       timestamp: new Date().toISOString(),
-      batteryLevel: device.batteryLevel,
       isAnomaly,
       anomalyDetails
     };
+
+    // Добавляем информацию о питании
+    if (device.powerType) {
+      result.powerType = device.powerType;
+      
+      // Для устройств с батарейным питанием добавляем уровень заряда и эталонное напряжение
+      if (device.powerType === POWER_TYPES.BATTERY) {
+        result.batteryLevel = device.batteryLevel;
+        
+        if (device.referenceVoltage) {
+          result.referenceVoltage = device.referenceVoltage;
+        }
+      }
+    }
+
+    return result;
   }
 
   _getDeviation(type) {
@@ -242,6 +366,14 @@ class DeviceGenerator {
       this.logger.warn(`Device ID ${deviceId} not found`);
       return false;
     }
+    
+    // Устанавливаем контекст логгера для текущего устройства и операции
+    if (this.logger && typeof this.logger.withOperationContext === 'function') {
+      this.logger.withOperationContext({
+        deviceId: deviceId,
+        operationType: action
+      });
+    }
 
     switch (action) {
       case 'toggleAnomaly':
@@ -252,9 +384,28 @@ class DeviceGenerator {
         const deviceIndex = this.devices.findIndex(d => d.deviceId === deviceId);
         if (deviceIndex !== -1) {
           const type = device.type;
+          const powerType = device.powerType;
+          const referenceVoltage = device.referenceVoltage;
+          
+          this.logger.info(`Resetting device ${deviceId} (type: ${type}, powerType: ${powerType})`);
+          
           this.devices[deviceIndex].lastValue = this._generateInitialValue(type);
-          this.devices[deviceIndex].batteryLevel = Math.floor(Math.random() * 100);
           this.devices[deviceIndex].anomalyMode = false;
+          
+          // Сохраняем тип питания и обрабатываем батарейное питание
+          if (powerType === POWER_TYPES.BATTERY) {
+            const oldBatteryLevel = this.devices[deviceIndex].batteryLevel;
+            this.devices[deviceIndex].batteryLevel = Math.floor(Math.random() * 100);
+            
+            this.logger.debug(`Battery level reset from ${oldBatteryLevel.toFixed(2)}% to ${this.devices[deviceIndex].batteryLevel}% for device ${deviceId}`);
+            
+            // Сохраняем эталонное напряжение, если оно было
+            if (referenceVoltage) {
+              this.devices[deviceIndex].referenceVoltage = referenceVoltage;
+              this.logger.debug(`Reference voltage preserved at ${referenceVoltage}V for device ${deviceId}`);
+            }
+          }
+          
           this.logger.info(`Device ${deviceId} has been reset.`);
         }
         break;
@@ -265,6 +416,16 @@ class DeviceGenerator {
       default:
         this.logger.warn(`Unknown command: ${action}`);
         return false;
+    }
+
+    // Очищаем контекст после обработки команды
+    if (this.logger && typeof this.logger.clearContext === 'function') {
+      this.logger.clearContext();
+      // Восстанавливаем контекст симулятора
+      this.logger.setContext({
+        simulatorId: this.simulatorId,
+        deviceCount: this.deviceCount
+      });
     }
 
     return true;

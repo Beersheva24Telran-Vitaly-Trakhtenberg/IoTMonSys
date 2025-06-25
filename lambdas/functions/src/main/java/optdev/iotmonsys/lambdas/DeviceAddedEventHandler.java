@@ -7,12 +7,8 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
@@ -26,6 +22,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Date;
 
+import static optdev.iotmonsys.lambdas.utils.SNSHelper.sendNotification;
+
 public class DeviceAddedEventHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
@@ -36,7 +34,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                 .reduce("", (acc, line) -> acc + line);
         logger.log("[EVENT] DeviceAdded: " + eventJson);
 
-        String response = "";
+        var response = "";
 
         String parameterName = System.getenv("API_ENDPOINT_PARAMETER");
         AWSSimpleSystemsManagement ssmClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
@@ -94,26 +92,17 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                             removeDeviceString + "\n";
                     emailText += deviceManagementString;
                 }
+                String subject = "IoTMonSys Warning: New device found";
+                String smsMessage = "New device added: " + deviceIdString +
+                        (deviceNameString.isEmpty() ? "" : " - " + deviceNameString) +
+                        (deviceTypeString.isEmpty() ? "" : " (" + deviceTypeString + ")");
 
-                String topicArn = System.getenv("SNS_TOPIC_ARN");
-                if (topicArn != null && !topicArn.isEmpty()) {
-                    AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-                    snsClient.publish(topicArn, emailText, "IoTMonSys Alert");
-                    logger.log("[DEBUG] SNS notification via email sent.");
+                boolean sentResult = sendNotification(subject, emailText, smsMessage, logger);
 
-                    boolean isSMSConfigured = false;
-                    if (isSMSConfigured) {
-                        snsClient.publish(new PublishRequest()
-                                .withSubject("IoTMonSys Alert: New device added")
-                                .withPhoneNumber("+375296523901")
-                                .withMessage("deviceId " + deviceIdString + ": " + deviceNameString + " (" + deviceTypeString + ")"));
-                        logger.log("[DEBUG] SNS notification via sms sent.");
-                    }
-
+                if (sentResult) {
                     response = "{\"statusCode\":200,\"body\":\"OK\"}";
                 } else {
-                    logger.log("[ERROR] No SNS_TOPIC_ARN in environment");
-                    response = "{\"statusCode\":500,\"body\":\"Alarm: No SNS_TOPIC_ARN in environment\"}";
+                    response = "{\"statusCode\":500,\"body\":\"Alarm: SNS_NOTIFY_FAILED\"}";
                 }
             } else {
                 logger.log("[ERROR] No deviceId in given event");
