@@ -5,7 +5,7 @@ const { findDeviceById, createDevice, updateDevice } = require('../repositories/
 const { createDeviceData } = require('../repositories/deviceDataRepository');
 const { sendToKinesis } = require('./kinesisService');
 
-const { createLogger } = require('@iotmonsys/logger-node');
+const { createLogger, generateLoggerTraceId } = require('@iotmonsys/logger-node');
 
 const logger = createLogger('device-data-service', './logs');
 
@@ -54,7 +54,8 @@ const getDiscoveryMode = () => {
  * @returns {Promise<Object>}
  */
 const saveDeviceData = async (data) => {
-  logger.withOperationContext({ deviceId: data.deviceId });
+  const traceId = data.traceId || generateLoggerTraceId();
+  logger.withOperationContext({ deviceId: data.deviceId, traceId });
   logger.info(`Processing data from device ${data.deviceId}`);
   
   try {
