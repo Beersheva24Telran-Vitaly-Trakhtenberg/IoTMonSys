@@ -6,6 +6,7 @@ const { createDeviceData } = require('../repositories/deviceDataRepository');
 const { sendToKinesis } = require('./kinesisService');
 
 const { createLogger } = require('@iotmonsys/logger-node');
+
 const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)

@@ -1,9 +1,9 @@
 node_modules/
 .env
 .env.*
+*/.env
 *.lock
 *-lock.json
-*.pem
 logs/
 dist/
 build/
@@ -12,5 +12,14 @@ idea/
 target/
 yarn.lock
 package-lock.json
-*/yarn.lock
-*/package-lock.json
+
+lambdas/shared-dependencies/dependency-reduced-pom.xml
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

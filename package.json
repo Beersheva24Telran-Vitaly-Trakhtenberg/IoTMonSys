@@ -12,7 +12,8 @@
     "lambdas",
     "simulator",
     "udp-listener",
-    "infra"
+    "infra",
+    "logger-node"
   ],
   "scripts": {
     "start:backend": "yarn workspace backend start",
@@ -36,6 +37,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch-logs": "^3.485.0",
     "mongodb": "^6.15.0"
   },
   "packageManager": "yarn@4.9.2"

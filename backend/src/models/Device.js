@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { DATA_TYPES, DEVICE_TYPES, POWER_TYPES_ARRAY } = require('../constants/deviceTypes');
+import mongoose from 'mongoose';
+import { DATA_TYPES, DEVICE_TYPES } from '../constants/deviceTypes.js';
 
 const deviceSchema = new mongoose.Schema({
   deviceId: {
@@ -40,48 +40,33 @@ const deviceSchema = new mongoose.Schema({
       'active',
       'inactive',
       'broken',
-      'maintenance',
-      'pending'
+      'maintenance'
     ],
     default: 'active',
   },
-  thresholds: {
+  thresholds: { // ToDo: Add for 'pressure', 'sound', 'vibration', 'opening', 'air_quality'
     temperature: {
-      min: { type: Number, default: -30 },  // grad C
-      max: { type: Number, default: 50 },  // grad C
+      min: { type: Number, default: -30 },
+      max: { type: Number, default: 50 },
     },
     humidity: {
-      min: { type: Number, default: 0 }, // %
-      max: { type: Number, default: 100 }, // %
+      min: { type: Number, default: 0 },
+      max: { type: Number, default: 100 },
     },
     light: {
-      min: { type: Number, default: 0 },  // lx
-      max: { type: Number, default: 10000 },  // lx
+      min: { type: Number, default: 0 },
+      max: { type: Number, default: 10000 },
     },
-    pressure: {
-      min: { type: Number, default: 970 }, // gPa
-      max: { type: Number, default: 1040 }, // gPa
-    },
-    sound: {
-      min: { type: Number, default: 0 }, // dB
-      max: { type: Number, default: 80 }, // dB
-    },
-    vibration: {
-      min: { type: Number, default: 0 }, // g
-      max: { type: Number, default: 2 }, // g
-    },
-    opening: {
-      min: { type: Number, default: 0 }, // binary
-      max: { type: Number, default: 1 }, // binary
-    },
-    air_quality: {
-      min: { type: Number, default: 0 }, // AQI
-      max: { type: Number, default: 200 }, // AQI
-    }
   },
   powerType: {
     type: String,
-    enum: POWER_TYPES_ARRAY,
+    enum: [
+      'battery',
+      'solar',
+      'electricity',
+      'without',
+      'other'
+    ],
     default: 'battery',
   },
   direction: {
@@ -117,6 +102,6 @@ deviceSchema.pre('save', function(next) {
   next();
 });
 
-deviceSchema.index({ deviceId: 1, timestamp: -1 });
+const Device = mongoose.model('Device', deviceSchema);
 
-module.exports = mongoose.model('Device', deviceSchema);
+export default Device;
