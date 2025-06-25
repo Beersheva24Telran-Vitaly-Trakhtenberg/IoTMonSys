@@ -38,6 +38,7 @@ const sendToKinesis = async (data, partitionKey) => {
     return null;
   }
 
+  // Используем deviceId как ключ партиции для равномерного распределения данных
   if (!partitionKey) {
     partitionKey = data?.deviceId || data?.device_id || Date.now().toString();
     logger.warn(`Partition key was missing for Kinesis record. Using generated key: ${partitionKey}`);
