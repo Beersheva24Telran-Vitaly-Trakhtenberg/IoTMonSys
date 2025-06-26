@@ -12,20 +12,17 @@ import com.mongodb.client.MongoDatabase;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.bson.Document;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
 
 import static optdev.iotmonsys.lambdas.utils.JwtSecretHash256Helper.getJwtSecret256;
 import static optdev.iotmonsys.lambdas.utils.WebResponsesHelper.buildJSONResponse;
+
+import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
+
 
 public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
     private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/AtlasMongoDBCredentials");
