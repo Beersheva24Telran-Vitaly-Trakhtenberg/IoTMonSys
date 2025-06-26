@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const logger = createLogger('kinesis-service', '../logs');
+const logger = createLogger('kinesis-service', './logs');
 
 const kinesisClient = new KinesisClient({
   region: process.env.AWS_REGION || 'us-east-1',
