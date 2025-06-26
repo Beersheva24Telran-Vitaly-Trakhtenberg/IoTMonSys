@@ -7,5 +7,5 @@ s3_prefix = "iotmonsys-lambda-stack"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Stage=\"dev\" MongoDbName=\"test\" SnsTopicArn=\"iotmonsys-alerts\""
+parameter_overrides = "Stage=\"dev\" MongoDbName=\"test\" SnsTopicArn=\"arn:aws:sns:us-east-1:394163297125:iotmonsys-alerts\""
 image_repositories = []
