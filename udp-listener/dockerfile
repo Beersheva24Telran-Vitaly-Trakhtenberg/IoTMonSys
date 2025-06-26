@@ -1,0 +1,15 @@
+FROM node:21-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm ci --only=production
+
+COPY . .
+
+RUN mkdir -p logs
+
+EXPOSE 41234/udp
+
+CMD ["node", "app.js"]

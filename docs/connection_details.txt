@@ -1,0 +1,12 @@
+Account ID: 394163297125
+https://394163297125.signin.aws.amazon.com/console
+
+IaM users: IaM-1@Admin.7125 sQX7d5E!GqHA8FvxsMnhsL  //  IaM-1@Developer.7125 9bR9rr235z$GWypZUr^utu
+
+EC2: t3.micro IoTMonSys -id# i-050c1bd14a30e90e6
+EC2 Public IPv4 address: 13.53.206.133
+EC2 username: ubuntu
+
+PostgreSQL: database: postgres iotmonsys-db.ckv2qcukesza.us-east-1.rds.amazonaws.com  iotmonsys_admin  $gq6zK(yx4l!:Dn!R!l4RTQXyeob
+
+

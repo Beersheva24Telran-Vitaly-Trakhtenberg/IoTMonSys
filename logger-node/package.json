@@ -1,0 +1,35 @@
+{
+  "name": "@iotmonsys/logger-node",
+  "version": "1.1.0",
+  "private": true,
+  "author": "Vitaly Trakhtenberg",
+  "description": "Shared logger for IoTMonSys",
+  "license": "ISC",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js"
+    }
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch-logs": "^3.485.0",
+    "morgan": "^1.10.0",
+    "rotating-file-stream": "^3.2.6",
+    "uuid": "^9.0.1",
+    "winston": "^3.17.0",
+    "winston-cloudwatch": "^6.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.5",
+    "jest": "^29.3.1"
+  },
+  "keywords": [
+    "logger",
+    "iotmonsys"
+  ],
+  "scripts": {
+    "test": "jest"
+  }
+}
