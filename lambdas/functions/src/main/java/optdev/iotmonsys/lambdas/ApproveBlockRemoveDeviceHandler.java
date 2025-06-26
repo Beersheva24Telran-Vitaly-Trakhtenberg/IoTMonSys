@@ -24,6 +24,9 @@ import java.security.NoSuchAlgorithmException;
 
 import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
 
+import static optdev.iotmonsys.lambdas.utils.JwtSecretHash256Helper.getJwtSecret256;
+import static optdev.iotmonsys.lambdas.utils.WebResponsesHelper.buildJSONResponse;
+
 public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
     private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/AtlasMongoDBCredentials");
     private static final String MONGODB_DB = System.getenv("MONGODB_DB");
@@ -43,25 +46,14 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
         String path = event.get("path").asText();
         String action = null;
         String deviceId = null;
-        String token = null;
+        String token;
 
         if (path != null && !path.isEmpty() && jwtSecret != null && !jwtSecret.isEmpty()) {
             JsonNode queryParams = event.path("queryStringParameters");
             if (queryParams != null && queryParams.has("token")) {
                 token = queryParams.get("token").asText();
-                
-                Key key;
-                byte[] secretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-                if (secretBytes.length < 32) {
-                    byte[] paddedSecret = new byte[32];
-                    System.arraycopy(secretBytes, 0, paddedSecret, 0, secretBytes.length);
-                    for (int i = secretBytes.length; i < 32; i++) {
-                        paddedSecret[i] = (byte) 8;
-                    }
-                    key = new SecretKeySpec(paddedSecret, SignatureAlgorithm.HS256.getJcaName());
-                } else {
-                    key = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS256.getJcaName());
-                }
+
+                Key key = getJwtSecret256();
 
                 if (path.matches("/devices/.+/approve")) {
                     action = "approve";
@@ -75,7 +67,7 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
                 }
 
                 if (deviceId == null || action == null) {
-                    response = "{\"statusCode\":400,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"Invalid request\\\"\"}";
+                    response = buildJSONResponse(400, "Invalid request");
                     flagContinue = false;
                 }
 
@@ -106,22 +98,22 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
                                     devices.deleteOne(filter);
                                 }
                             }
-                            response = "{\"statusCode\":200,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"OK\\\"\"}";
+                            response = buildJSONResponse(200, "OK");
                         } else {
-                            response = "{\"statusCode\":401,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"Unauthorized. Invalid token in request\\\"\"}";
+                            response = buildJSONResponse(401, "Unauthorized. Invalid token in request");
                             flagContinue = false;
                         }
                     } catch (JwtException e) {
-                        response = "{\"statusCode\":401,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"Unauthorized. Invalid token in request\\\"\"}";
+                        response = buildJSONResponse(401, "Unauthorized. Invalid token in request");
                         flagContinue = false;
                     }
                 }
             } else {
-                response = "{\"statusCode\":401,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"Unauthorized. Invalid token in request\\\"\"}";
+                response = buildJSONResponse(401, "Unauthorized. Invalid token in request");
                 flagContinue = false;
             }
         } else {
-            response = "{\"statusCode\":500,\"headers\":{\"Content-Type\":\"application/json\",\"Access-Control-Allow-Origin\":\"*\"},\"body\":\"\\\"Invalid server params or request\\\"\"}";
+            response = buildJSONResponse(500, "Invalid server params or request");
             flagContinue = false;
         }
         outputStream.write(response.getBytes(StandardCharsets.UTF_8));

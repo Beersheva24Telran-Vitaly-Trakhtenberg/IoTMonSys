@@ -58,4 +58,4 @@ buildNumber.properties
 ../udp-listener/logs/
 /packaged.yaml
 
-!/shared-dependencies/dependency-reduced-pom.xml
+/shared-dependencies/dependency-reduced-pom.xml
