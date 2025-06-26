@@ -120,3 +120,103 @@ Lambda-функция ErrorPollerHandler настроена для монито�
 2. Включайте CloudWatch только при необходимости мониторинга
 3. Создавайте дашборды CloudWatch только для продакшен-среды
 4. Настраивайте алармы только для критических метрик
+
+## AWS Kinesis Setup для IoTMonSys
+
+### Настройка потока Kinesis Data Streams
+
+1. Создайте поток Kinesis Data Streams с именем `IoTMonSys-DeviceData`:
+   ```bash
+   aws kinesis create-stream --stream-name IoTMonSys-DeviceData --shard-count 1
+   ```
+
+2. Проверьте статус потока:
+   ```bash
+   aws kinesis describe-stream --stream-name IoTMonSys-DeviceData
+   ```
+
+3. Для просмотра данных в потоке:
+   ```bash
+   # Получение итератора шарда
+   aws kinesis get-shard-iterator --stream-name IoTMonSys-DeviceData --shard-id shardId-000000000000 --shard-iterator-type TRIM_HORIZON
+   
+   # Чтение записей с использованием полученного итератора
+   aws kinesis get-records --shard-iterator <полученный-итератор>
+   ```
+
+## Настройка IAM политик
+
+### Минимальные права для отправки данных в Kinesis
+
+Для пользователя `IoTMonSys@ApiClient.7125` необходимо создать следующую политику:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kinesis:PutRecord",
+                "kinesis:PutRecords",
+                "kinesis:DescribeStream"
+            ],
+            "Resource": "arn:aws:kinesis:us-east-1:394163297125:stream/IoTMonSys-DeviceData"
+        }
+    ]
+}
+```
+
+Эти разрешения позволяют:
+- `kinesis:PutRecord` - отправлять отдельные записи в поток
+- `kinesis:PutRecords` - отправлять пакеты записей (для оптимизации)
+- `kinesis:DescribeStream` - получать информацию о потоке (для диагностики)
+
+### Добавление политики к существующему пользователю
+
+1. Войдите в консоль AWS
+2. Перейдите в раздел IAM
+3. Выберите "Policies" (Политики)
+4. Найдите политику `IoTMonSys-ApiClientPolicies`
+5. Нажмите "Edit policy" (Редактировать политику)
+6. Добавьте новый блок Statement с разрешениями Kinesis
+7. Сохраните изменения
+
+## Конфигурация в приложении
+
+В файле `.env` должны быть настроены следующие переменные:
+
+```
+USE_KINESIS=true
+KINESIS_STREAM_NAME=IoTMonSys-DeviceData
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=<ID ключа доступа>
+AWS_SECRET_ACCESS_KEY=<Секретный ключ доступа>
+```
+
+## Отладка проблем с Kinesis
+
+### Проверка логов
+
+Логи Kinesis сервиса находятся в директории `./logs/kinesis-service/`.
+
+### Типичные ошибки
+
+1. **AccessDeniedException**: Пользователь не имеет необходимых разрешений. Проверьте IAM политику.
+2. **ResourceNotFoundException**: Указанный поток не существует. Проверьте имя потока и регион.
+3. **ProvisionedThroughputExceededException**: Превышен лимит пропускной способности. Увеличьте количество шардов или реализуйте механизм повторных попыток.
+
+### Проверка данных в потоке
+
+```bash
+# Получение итератора шарда
+aws kinesis get-shard-iterator --stream-name IoTMonSys-DeviceData --shard-id shardId-000000000000 --shard-iterator-type LATEST
+
+# Чтение последних записей
+aws kinesis get-records --shard-iterator <полученный-итератор>
+```
+
+## Дополнительные ресурсы
+
+- [AWS Kinesis Documentation](https://docs.aws.amazon.com/kinesis/latest/dev/introduction.html)
+- [AWS IAM Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)
