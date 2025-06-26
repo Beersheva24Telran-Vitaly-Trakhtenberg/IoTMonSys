@@ -22,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Date;
 
+import static optdev.iotmonsys.lambdas.utils.JwtSecretHash256Helper.getJwtSecret256;
 import static optdev.iotmonsys.lambdas.utils.SNSHelper.sendNotification;
 
 public class DeviceAddedEventHandler implements RequestStreamHandler {
@@ -63,19 +64,7 @@ public class DeviceAddedEventHandler implements RequestStreamHandler {
                 if (jwtSecret != null && !jwtSecret.isEmpty()) {
                     Key key;
                     try {
-                        // Если секрет слишком короткий, дополняем его до 32 байт
-                        byte[] secretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-                        if (secretBytes.length < 32) {
-                            byte[] paddedSecret = new byte[32];
-                            System.arraycopy(secretBytes, 0, paddedSecret, 0, secretBytes.length);
-                            // Заполняем оставшиеся байты случайными значениями
-                            for (int i = secretBytes.length; i < 32; i++) {
-                                paddedSecret[i] = (byte)8;
-                            }
-                            key = new SecretKeySpec(paddedSecret, SignatureAlgorithm.HS256.getJcaName());
-                        } else {
-                            key = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS256.getJcaName());
-                        }
+                        key = getJwtSecret256();
 
                         long expMillis = System.currentTimeMillis() + 10 * 60 * 1000;
                         String tokenApprove = Jwts.builder()
