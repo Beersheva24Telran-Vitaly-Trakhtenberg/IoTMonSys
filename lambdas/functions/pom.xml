@@ -50,6 +50,7 @@
     <!-- AWS SDK Version -->
     <!--<aws.sdk2.version>3.15.0</aws.sdk2.version>-->
     <aws.lambda.java.core.version>1.2.3</aws.lambda.java.core.version>
+    <aws-java-sdk-sns.version>1.12.782</aws-java-sdk-sns.version>
 
     <!-- MongoDB -->
     <mongodb.driver.version>4.10.2</mongodb.driver.version>
@@ -68,8 +69,8 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-lambda-java-core</artifactId>
-      <version>${aws.lambda.java.core.version}</version>
-      <scope>provided</scope>
+      <version>${aws-lambda-java-core.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <!-- Shared dependencies layer - presents in runtime via Lambda Layer -->
@@ -85,7 +86,7 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-lambda-java-events</artifactId>
       <version>${aws-lambda-java-events.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -104,13 +105,15 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-sns</artifactId>
-      <scope>provided</scope>
+      <version>${aws-java-sdk-sns.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-core</artifactId>
-      <scope>provided</scope>
+      <version>${aws-java-sdk.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -120,10 +123,17 @@
     </dependency>
 
     <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ssm</artifactId>
+      <version>1.12.782</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
       <version>${mongodb.driver.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -235,9 +245,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>optdev.iotmonsys.lambdas.LambdaHandler</mainClass>
-                </transformer>
+                <!-- Удаляем трансформер с неправильным mainClass -->
               </transformers>
               <filters>
                 <filter>

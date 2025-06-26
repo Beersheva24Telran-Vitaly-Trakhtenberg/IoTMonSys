@@ -23,3 +23,6 @@ lambdas/shared-dependencies/dependency-reduced-pom.xml
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+/lambdas/.aws-sam/
+/lambdas/shared-dependencies/dependency-reduced-pom.xml
