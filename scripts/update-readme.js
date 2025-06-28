@@ -87,65 +87,140 @@ function collectSectionProgress(lines) {
 
 // Функция для генерации оглавления
 function generateToc(lines, sectionsProgress) {
-  const toc = ['## Содержание\n'];
-  let inToc = false;
-
+  const toc = [];
+  const anchors = {};
+  
   for (const line of lines) {
-    // Пропускаем существующее оглавление
+    const headerMatch = line.match(HEADER_REGEX);
+    if (headerMatch) {
+      const level = headerMatch[1].length;
+      
+      // Пропускаем заголовки первого уровня (# ...)
+      if (level === 1) continue;
+      
+      const title = headerMatch[2];
+      const anchor = generateAnchor(title);
+      
+      // Обработка дублирующихся якорей
+      if (anchors[anchor]) {
+        anchors[anchor]++;
+        anchor = `${anchor}-${anchors[anchor]}`;
+      } else {
+        anchors[anchor] = 1;
+      }
+      
+      // Добавляем отступы в зависимости от уровня заголовка
+      const indent = '  '.repeat(level - 2);
+      
+      // Получаем прогресс для данного заголовка
+      const progress = sectionsProgress[title];
+      
+      // Форматируем строку оглавления
+      let tocLine = `${indent}- [`;
+      
+      // Если прогресс 100%, добавляем жирный шрифт и отметку о завершении
+      if (progress === 100) {
+        tocLine += `**${title} - ${progress}% done! ✅**`;
+      } else if (progress) {
+        tocLine += `${title} (${progress}%)`;
+      } else {
+        tocLine += title;
+      }
+      
+      tocLine += `](#${anchor})`;
+      toc.push(tocLine);
+    }
+  }
+  
+  return toc.join('\n');
+}
+
+// Функция для удаления существующих оглавлений
+function removeExistingToc(lines) {
+  const result = [];
+  let skipUntilNextSection = false;
+  let inToc = false;
+  
+  // Проверяем, является ли строка элементом оглавления
+  function isTocItem(line) {
+    // Шаблон для строк оглавления: "  - [Название](#якорь)"
+    return /^\s*-\s+\[.*\]\(#.*\)/.test(line);
+  }
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Если находим заголовок "Содержание", начинаем пропускать строки
     if (line.startsWith('## Содержание')) {
+      skipUntilNextSection = true;
       inToc = true;
       continue;
     }
-    if (inToc && line.trim() === '') {
-      inToc = false;
-      continue;
+    
+    // Если мы в режиме пропуска (внутри оглавления)
+    if (skipUntilNextSection) {
+      // Если это пустая строка, проверяем следующую строку
+      if (line.trim() === '') {
+        // Проверяем, является ли следующая строка заголовком или элементом оглавления
+        if (i + 1 < lines.length) {
+          const nextLine = lines[i + 1];
+          // Если следующая строка - заголовок второго уровня или выше, или это не элемент оглавления,
+          // значит оглавление закончилось
+          if ((nextLine.startsWith('#') && !nextLine.startsWith('## Содержание')) || 
+              (!isTocItem(nextLine) && nextLine.trim() !== '')) {
+            skipUntilNextSection = false;
+            inToc = false;
+          }
+        }
+      }
+      // Если это не пустая строка и не элемент оглавления, значит оглавление закончилось
+      else if (!isTocItem(line) && !line.startsWith('-')) {
+        skipUntilNextSection = false;
+        inToc = false;
+        // Добавляем эту строку, так как она уже не часть оглавления
+        result.push(line);
+      }
+      
+      // Пропускаем строки оглавления
+      if (inToc) {
+        continue;
+      }
     }
-    if (inToc) continue;
-
-    const match = line.match(HEADER_REGEX);
-    if (match) {
-      const [_, hashes, title] = match;
-      const level = hashes.length;
-      const indent = level > 1 ? '  '.repeat(level - 2) : '';
-      
-      // Создаем путь для поиска в карте разделов
-      const currentPath = [];
-      for (let i = 0; i < level; i++) {
-        if (i === level - 1) {
-          currentPath.push(title);
-        } else {
-          // Здесь должна быть логика для получения родительских заголовков
-          // Упрощенно используем заполнитель
-          currentPath.push('*');
-        }
-      }
-      
-      // Ищем раздел в карте по заголовку
-      let sectionProgress = null;
-      for (const [path, section] of sectionsProgress.entries()) {
-        if (path.endsWith(title) && section.level === level) {
-          sectionProgress = section.percentage;
-          break;
-        }
-      }
-      
-      const anchor = title.toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-
-      const progress = sectionProgress !== null ? ` (${sectionProgress}%)` : '';
-      
-      // Выделяем пункты со 100% выполнения
-      if (sectionProgress === 100) {
-        toc.push(`${indent}- [**${title}${progress}**](#${anchor})`);
-      } else {
-        toc.push(`${indent}- [${title}${progress}](#${anchor})`);
-      }
+    
+    // Добавляем строку в результат, если мы не в оглавлении
+    if (!inToc) {
+      result.push(line);
     }
   }
+  
+  // Удаляем лишние пустые строки в начале и между разделами
+  return cleanupEmptyLines(result);
+}
 
-  return toc.join('\n') + '\n';
+// Функция для очистки лишних пустых строк
+function cleanupEmptyLines(lines) {
+  const result = [];
+  let consecutiveEmptyLines = 0;
+  
+  for (const line of lines) {
+    if (line.trim() === '') {
+      consecutiveEmptyLines++;
+      // Оставляем максимум 2 пустые строки подряд
+      if (consecutiveEmptyLines <= 2) {
+        result.push(line);
+      }
+    } else {
+      consecutiveEmptyLines = 0;
+      result.push(line);
+    }
+  }
+  
+  // Удаляем пустые строки в начале файла
+  while (result.length > 0 && result[0].trim() === '') {
+    result.shift();
+  }
+  
+  return result;
 }
 
 // Функция для обновления прогресса выполнения
@@ -247,8 +322,11 @@ function main() {
   const content = readFile();
   const lines = content.split('\n');
   
+  // Удаляем все существующие оглавления
+  const cleanedLines = removeExistingToc(lines);
+  
   // Обновляем прогресс в заголовках
-  const updatedLines = updateProgress(lines);
+  const updatedLines = updateProgress(cleanedLines);
   
   // Собираем информацию о прогрессе всех разделов
   const sectionsProgress = collectSectionProgress(updatedLines);
@@ -256,32 +334,45 @@ function main() {
   // Генерируем новое оглавление
   const toc = generateToc(updatedLines, sectionsProgress);
   
-  // Вставляем новое оглавление
+  // Вставляем новое оглавление после заголовка первого уровня
   const finalLines = [];
   let tocInserted = false;
-  let inToc = false;
   
-  for (const line of updatedLines) {
-    if (line.startsWith('## Содержание')) {
-      finalLines.push(toc);
-      tocInserted = true;
-      inToc = true;
-      continue;
-    }
+  // Ищем первый заголовок первого уровня
+  for (let i = 0; i < updatedLines.length; i++) {
+    const line = updatedLines[i];
     
-    if (inToc && line.trim() === '') {
-      inToc = false;
-      continue;
-    }
+    // Добавляем строку в результат
+    finalLines.push(line);
     
-    if (!inToc) {
-      finalLines.push(line);
+    // Если это первый заголовок первого уровня
+    if (!tocInserted && line.startsWith('# ')) {
+      // Ищем первую пустую строку после заголовка
+      if (i + 1 < updatedLines.length && updatedLines[i + 1].trim() === '') {
+        // Вставляем оглавление после заголовка и пустой строки
+        finalLines.push('');
+        finalLines.push('## Содержание');
+        finalLines.push('');
+        finalLines.push(toc);
+        finalLines.push('');
+        tocInserted = true;
+        i++; // Пропускаем пустую строку, так как мы её уже добавили
+      } else {
+        // Если нет пустой строки, добавляем её
+        finalLines.push('');
+        finalLines.push('## Содержание');
+        finalLines.push('');
+        finalLines.push(toc);
+        finalLines.push('');
+        tocInserted = true;
+      }
     }
   }
   
-  // Если оглавление не было вставлено, добавляем его в начало
+  // Если оглавление не было вставлено (например, если нет заголовка первого уровня),
+  // добавляем его в начало
   if (!tocInserted) {
-    finalLines.unshift('', toc, '');
+    finalLines.unshift('## Содержание', '', toc, '');
   }
   
   // Записываем обновленный файл
