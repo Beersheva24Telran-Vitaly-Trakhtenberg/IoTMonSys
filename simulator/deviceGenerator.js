@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const loggerLibrary = require('@iotmonsys/logger-node');
+const { createLogger, generateLoggerTraceId, setLoggerContext } = require('@vitaly-yosef/node-smart-logger');
 
 const DATA_TYPES = {
   TEMPERATURE: 'temperature',
@@ -51,18 +51,20 @@ class DeviceGenerator {
     this.anomalyRate = anomalyRate;
     
     // Инициализируем логгер без явного указания формата, используя настройки из .env
-    this.logger = logger || loggerLibrary.createLogger('device-generator', './logs');
+    this.logger = logger || createLogger('device-generator', './logs');
     
     // Создаем уникальный идентификатор для симулятора
     this.simulatorId = `sim-${uuidv4().substring(0, 8)}`;
     
+    // Создаем уникальный идентификатор для трассировки логгера
+    const loggerTraceId = generateLoggerTraceId();
+    
     // Устанавливаем контекст логгера для симулятора
-    if (this.logger && typeof this.logger.setContext === 'function') {
-      this.logger.setContext({
-        simulatorId: this.simulatorId,
-        deviceCount: this.deviceCount
-      });
-    }
+    setLoggerContext({ 
+      simulatorId: this.simulatorId,
+      deviceCount: this.deviceCount,
+      traceId: loggerTraceId
+    });
     
     // Инициализируем устройства после настройки логгера
     this.devices = this._initializeDevices(deviceCount);
@@ -106,6 +108,9 @@ class DeviceGenerator {
 
       const deviceId = `dev-${uuidv4().substring(0, 8)}`;
       
+      // Генерируем уникальный trace ID для каждого устройства
+      const deviceTraceId = generateLoggerTraceId();
+      
       const device = {
         deviceId: deviceId,
         type: deviceType,
@@ -114,7 +119,8 @@ class DeviceGenerator {
         location: ['Kitchen', 'Guest Room', 'Sleep Room', 'Bathroom', 'Cabinet'][Math.floor(Math.random() * 5)],
         status: 'active',
         lastValue: this._generateInitialValue(deviceType),
-        anomalyMode: false
+        anomalyMode: false,
+        traceId: deviceTraceId // Сохраняем trace ID в объекте устройства
       };
 
       // Добавляем свойства для устройств с батарейным питанием
@@ -123,23 +129,16 @@ class DeviceGenerator {
         device.batteryLevel = Math.floor(Math.random() * 100); // Уровень заряда в процентах (0-100%)
       }
 
-      // Устанавливаем контекст логгера для текущего устройства
-      if (this.logger && typeof this.logger.setContext === 'function') {
-        this.logger.setContext({ deviceId: deviceId });
-      }
-      
+      // Добавляем устройство в список
       devices.push(device);
-      this.logger.debug(`Created device: ${JSON.stringify(device)}`);
       
-      // Очищаем контекст устройства после логирования
-      if (this.logger && typeof this.logger.clearContext === 'function') {
-        this.logger.clearContext();
-        // Восстанавливаем контекст симулятора
-        this.logger.setContext({
-          simulatorId: this.simulatorId,
-          deviceCount: this.deviceCount
-        });
-      }
+      // Логируем создание устройства с контекстом
+      this.logger.withOperationContext({ 
+        device: deviceId, 
+        traceId: deviceTraceId 
+      }, () => {
+        this.logger.debug(`Created device: ${JSON.stringify(device)}`);
+      });
     }
 
     return devices;
@@ -171,129 +170,164 @@ class DeviceGenerator {
   }
 
   _updateValue(device) {
-    // Устанавливаем контекст логгера для текущего устройства
-    if (this.logger && typeof this.logger.setContext === 'function') {
-      this.logger.setContext({ 
-        deviceId: device.deviceId,
-        deviceType: device.type,
-        powerType: device.powerType
-      });
-    }
+    // Используем trace ID устройства или генерируем новый
+    const traceId = device.traceId || generateLoggerTraceId();
     
-    const type = device.type;
-    let newValue = device.lastValue;
+    // Создаем контекст для текущей операции обновления
+    const operationContext = {
+      deviceId: device.deviceId,
+      deviceType: device.type,
+      powerType: device.powerType,
+      traceId: traceId
+    };
+    
+    // Создаем копию устройства для обновления
+    const updatedDevice = { ...device };
+    const type = updatedDevice.type;
+    let newValue = updatedDevice.lastValue;
     let isAnomaly = false;
     let anomalyDetails = null;
 
-    if (device.anomalyMode || Math.random() * 100 < this.anomalyRate) {
-      isAnomaly = true;
+    // Выполняем обновление значения в контексте логгера
+    return this.logger.withOperationContext(operationContext, () => {
+      if (updatedDevice.anomalyMode || Math.random() * 100 < this.anomalyRate) {
+        isAnomaly = true;
 
-      // Генерация аномального значения
-      switch (type) {
-        case DATA_TYPES.TEMPERATURE:
-          newValue = Math.random() > 0.5 ? -10 + (Math.random() * 10) : 40 + (Math.random() * 20);
-          anomalyDetails = newValue < 0 ? 'Temperature critically low' : 'Temperature critically high';
-          break;
-        case DATA_TYPES.HUMIDITY:
-          newValue = Math.random() > 0.5 ? Math.random() * 10 : 90 + (Math.random() * 15);
-          anomalyDetails = newValue < 10 ? 'Humidity critically low' : 'Humidity critically high';
-          break;
-        case DATA_TYPES.LIGHT:
-          newValue = Math.random() > 0.7 ? 5000 + (Math.random() * 5000) : 0;
-          anomalyDetails = newValue > 5000 ? 'Too bright lighting' : 'No lighting';
-          break;
-        case DATA_TYPES.PRESSURE:
-          newValue = Math.random() > 0.5 ? 950 + (Math.random() * 10) : 1050 + (Math.random() * 10);
-          anomalyDetails = newValue < 970 ? 'Abnormally low pressure' : 'Abnormally high pressure';
-          break;
-        case DATA_TYPES.SOUND:
-          newValue = 80 + (Math.random() * 40);
-          anomalyDetails = 'High noise level';
-          break;
-        case DATA_TYPES.VIBRATION:
-          newValue = 5 + (Math.random() * 5);
-          anomalyDetails = 'High vibration level';
-          break;
-        case DATA_TYPES.OPENING:
-          // Для бинарных датчиков аномалия - частое изменение состояния
-          newValue = device.lastValue === 1 ? 0 : 1;
-          anomalyDetails = 'Frequent change of state';
-          break;
-        case DATA_TYPES.AIR_QUALITY:
-          newValue = 200 + (Math.random() * 300);
-          anomalyDetails = 'Low quality of air';
-          break;
-        case DATA_TYPES.BATTERY:
-          newValue = Math.random() * 10;
-          anomalyDetails = 'Critical low battery charge';
-          break;
-        default:
-          newValue = Math.random() * 1000;
-          anomalyDetails = 'Anomaly value';
+        // Генерация аномального значения
+        switch (type) {
+          case DATA_TYPES.TEMPERATURE:
+            newValue = Math.random() > 0.5 ? -10 + (Math.random() * 10) : 40 + (Math.random() * 20);
+            anomalyDetails = newValue < 0 ? 'Temperature critically low' : 'Temperature critically high';
+            break;
+          case DATA_TYPES.HUMIDITY:
+            newValue = Math.random() > 0.5 ? Math.random() * 10 : 90 + (Math.random() * 15);
+            anomalyDetails = newValue < 10 ? 'Humidity critically low' : 'Humidity critically high';
+            break;
+          case DATA_TYPES.LIGHT:
+            newValue = Math.random() > 0.7 ? 5000 + (Math.random() * 5000) : 0;
+            anomalyDetails = newValue > 5000 ? 'Too bright lighting' : 'No lighting';
+            break;
+          case DATA_TYPES.PRESSURE:
+            newValue = Math.random() > 0.5 ? 950 + (Math.random() * 10) : 1050 + (Math.random() * 10);
+            anomalyDetails = newValue < 970 ? 'Abnormally low pressure' : 'Abnormally high pressure';
+            break;
+          case DATA_TYPES.SOUND:
+            newValue = 80 + (Math.random() * 40);
+            anomalyDetails = 'High noise level';
+            break;
+          case DATA_TYPES.VIBRATION:
+            newValue = 5 + (Math.random() * 5);
+            anomalyDetails = 'High vibration level';
+            break;
+          case DATA_TYPES.OPENING:
+            // Для бинарных датчиков аномалия - частое изменение состояния
+            newValue = updatedDevice.lastValue === 1 ? 0 : 1;
+            anomalyDetails = 'Frequent change of state';
+            break;
+          case DATA_TYPES.AIR_QUALITY:
+            newValue = 200 + (Math.random() * 300);
+            anomalyDetails = 'Low quality of air';
+            break;
+          case DATA_TYPES.BATTERY:
+            newValue = Math.random() * 10;
+            anomalyDetails = 'Critical low battery charge';
+            break;
+          default:
+            newValue = Math.random() * 1000;
+            anomalyDetails = 'Anomaly value';
+        }
+
+        this.logger.debug(`Anomaly detected for device ${updatedDevice.deviceId}: ${anomalyDetails}`);
+      } else {
+        // Генерация нормального значения с небольшим отклонением
+        const deviation = this._getDeviation(type);
+        newValue = updatedDevice.lastValue + (Math.random() * 2 - 1) * deviation;
+
+        // Ограничение значений в нормальном диапазоне
+        newValue = this._normalizeValue(type, newValue);
       }
 
-      this.logger.debug(`Anomaly detected for device ${device.deviceId}: ${anomalyDetails}`);
-    } else {
-      // Генерация нормального значения с небольшим отклонением
-      const deviation = this._getDeviation(type);
-      newValue = device.lastValue + (Math.random() * 2 - 1) * deviation;
+      // Обновление заряда батареи только для устройств с батарейным питанием
+      if (updatedDevice.powerType === POWER_TYPES.BATTERY) {
+        // Разная скорость разрядки в зависимости от типа устройства и наличия аномалий
+        let dischargeRate = Math.random() * 0.2; // Базовая скорость разрядки
+        
+        // Увеличиваем скорость разрядки при аномалиях
+        if (isAnomaly) {
+          dischargeRate *= 5;
+        }
+        
+        // Разные типы устройств потребляют разное количество энергии
+        switch (type) {
+          case DATA_TYPES.TEMPERATURE:
+            dischargeRate *= 0.8;
+            break;
+          case DATA_TYPES.HUMIDITY:
+            dischargeRate *= 0.9;
+            break;
+          case DATA_TYPES.LIGHT:
+            dischargeRate *= 1.2;
+            break;
+          case DATA_TYPES.VIBRATION:
+            dischargeRate *= 1.5;
+            break;
+          default:
+            dischargeRate *= 1;
+        }
+        
+        // Обновляем заряд батареи
+        updatedDevice.batteryLevel = Math.max(0, updatedDevice.batteryLevel - dischargeRate);
+        
+        // Логируем низкий заряд батареи
+        if (updatedDevice.batteryLevel < 20) {
+          this.logger.warn(`Low battery for device ${updatedDevice.deviceId}: ${updatedDevice.batteryLevel.toFixed(1)}%`);
+        }
+      }
 
-      // Ограничение значений в нормальном диапазоне
-      newValue = this._normalizeValue(type, newValue);
-    }
-
-    // Обновление заряда батареи только для устройств с батарейным питанием
-    if (device.powerType === POWER_TYPES.BATTERY) {
-      // Разная скорость разрядки в зависимости от типа устройства и наличия аномалий
-      let dischargeRate = Math.random() * 0.2; // Базовая скорость разрядки
+      // Обновляем значение в устройстве
+      updatedDevice.lastValue = newValue;
       
-      // Увеличиваем скорость разрядки при аномалиях
+      // Формируем объект данных для отправки
+      const data = {
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        deviceId: updatedDevice.deviceId,
+        type: updatedDevice.type,
+        value: updatedDevice.lastValue,
+        status: updatedDevice.status,
+        location: updatedDevice.location,
+        traceId: traceId // Добавляем trace ID в данные для отправки
+      };
+      
+      // Добавляем информацию о питании
+      if (updatedDevice.powerType === POWER_TYPES.BATTERY) {
+        data.batteryLevel = updatedDevice.batteryLevel;
+        data.referenceVoltage = updatedDevice.referenceVoltage;
+      } else if (updatedDevice.powerType === POWER_TYPES.ELECTRICITY) {
+        data.powerConsumption = Math.random() * 5; // Случайное потребление энергии в Вт
+      } else if (updatedDevice.powerType === POWER_TYPES.SOLAR) {
+        // Для солнечных батарей добавляем уровень освещенности
+        const dayTime = new Date().getHours();
+        const isDaylight = dayTime >= 6 && dayTime <= 20;
+        data.solarCharge = isDaylight ? 50 + Math.random() * 50 : Math.random() * 10;
+      }
+      
+      // Добавляем информацию об аномалии, если она есть
       if (isAnomaly) {
-        dischargeRate *= 1.5;
+        data.anomaly = {
+          detected: true,
+          details: anomalyDetails
+        };
       }
       
-      const oldBatteryLevel = device.batteryLevel;
-      device.batteryLevel = Math.max(0, device.batteryLevel - dischargeRate);
-      
-      // Логируем существенное изменение уровня заряда батареи
-      if (Math.floor(oldBatteryLevel) > Math.floor(device.batteryLevel)) {
-        this.logger.debug(`Battery level decreased from ${oldBatteryLevel.toFixed(2)}% to ${device.batteryLevel.toFixed(2)}% for device ${device.deviceId}`);
-        
-        // Логируем предупреждение при низком заряде батареи
-        if (device.batteryLevel < 20 && oldBatteryLevel >= 20) {
-          this.logger.warn(`Low battery level (${device.batteryLevel.toFixed(2)}%) for device ${device.deviceId}`);
-        }
+      // Обновляем устройство в массиве устройств
+      const deviceIndex = this.devices.findIndex(d => d.deviceId === updatedDevice.deviceId);
+      if (deviceIndex !== -1) {
+        this.devices[deviceIndex] = updatedDevice;
       }
-    }
-
-    // Обновление последнего значения
-    device.lastValue = newValue;
-
-    // Формируем базовый объект с данными устройства
-    const result = {
-      deviceId: device.deviceId,
-      type,
-      value: newValue,
-      timestamp: new Date().toISOString(),
-      isAnomaly,
-      anomalyDetails
-    };
-
-    // Добавляем информацию о питании
-    if (device.powerType) {
-      result.powerType = device.powerType;
       
-      // Для устройств с батарейным питанием добавляем уровень заряда и эталонное напряжение
-      if (device.powerType === POWER_TYPES.BATTERY) {
-        result.batteryLevel = device.batteryLevel;
-        
-        if (device.referenceVoltage) {
-          result.referenceVoltage = device.referenceVoltage;
-        }
-      }
-    }
-
-    return result;
+      return data;
+    });
   }
 
   _getDeviation(type) {

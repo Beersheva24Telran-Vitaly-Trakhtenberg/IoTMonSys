@@ -1,18 +1,30 @@
 const dgram = require('dgram');
-const loggerLibrary = require('@iotmonsys/logger-node');
+
+const { createLogger, generateLoggerTraceId, setLoggerContext } = require('@vitaly-yosef/node-smart-logger');
 
 class UdpSender {
-  logger = loggerLibrary.createLogger('udp-sender', './logs');
+  logger = createLogger('udp-sender', './logs');
 
   /**
-   * @param {number} host
+   * @param {string} host
    * @param {number} port
    */
   constructor(host, port) {
     this.host = host;
     this.port = port;
     this.client = dgram.createSocket('udp4');
-
+    
+    // Создаем уникальный идентификатор для UDP-отправителя
+    this.senderId = `sender-${Math.random().toString(36).substring(2, 10)}`;
+    
+    // Устанавливаем контекст логирования
+    setLoggerContext({ 
+      senderId: this.senderId, 
+      host: this.host, 
+      port: this.port,
+      traceId: generateLoggerTraceId()
+    });
+    
     this.client.on('error', (err) => {
       this.logger.error(`UDP client error: ${err.message}`);
       this.client.close();
