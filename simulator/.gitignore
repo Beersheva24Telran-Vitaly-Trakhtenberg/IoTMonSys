@@ -1,6 +1,5 @@
 node_modules/
 .env
-.env.*
 *.lock
 *-lock.json
 *.pem
@@ -18,11 +17,19 @@ package-lock.json
 ../.yarn/
 ../.yarnrc.yml
 ../logs/
+
 ../lambdas/package.json
 ../lambdas/packaged.yaml
+
 ../udp-listener/.env
 ../udp-listener/logs/
+
 ../backend/.env
 ../backend/logs/
+
 ../frontend/.env
 ../frontend/logs/
+
+.pnp.cjs
+.pnp.loader.mjs
+.yarn/
