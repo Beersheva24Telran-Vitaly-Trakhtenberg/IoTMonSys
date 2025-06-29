@@ -1,14 +1,17 @@
 yarn.lock
 package-lock.json
 .env
+!.env.example
 node_modules
 logs
 
 .yarn/
+../.yarn/
 */yarn.lock
 */package-lock.json
 *.pem
 
+../lambdas/
 ../lambdas/package.json
 ../lambdas/target
 
