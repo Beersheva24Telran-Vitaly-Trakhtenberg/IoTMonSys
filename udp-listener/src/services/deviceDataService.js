@@ -8,6 +8,7 @@ const { sendToKinesis } = require('./kinesisService');
 const pkg = require('@vitaly-yosef/node-smart-logger');
 const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 
+
 const logger = createLogger('device-data-service', './logs');
 
 // Discovery mode (auto-search/adding new devices)
