@@ -9,8 +9,8 @@
     "test": "echo \"No tests specified yet\" && exit 0"
   },
   "devDependencies": {
-    "maven": "^4.7.0",
-    "@iotmonsys/backend": "^0.0.0"
+    "@iotmonsys/backend": "^0.0.0",
+    "maven": "^4.7.0"
   },
   "license": "ISC"
 }
