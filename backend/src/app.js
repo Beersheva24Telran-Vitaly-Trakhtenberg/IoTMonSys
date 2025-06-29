@@ -7,13 +7,19 @@ import cookieParser from 'cookie-parser';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import connectDB from './config/db.js';
-import { createLogger } from "@iotmonsys/logger-node";
+import pkg from "@vitaly-yosef/node-smart-logger";
+const { createLogger, generateLoggerTraceId, setLoggerContext } = pkg;
 
 dotenv.config();
 
 const app = express();
 
-  let logger = createLogger('backend', './logs');
+const appTraceId = generateLoggerTraceId();
+const logger = createLogger('backend', './logs');
+setLoggerContext({ 
+  service: 'backend-api', 
+  traceId: appTraceId 
+});
 
 // Middleware
 app.use(express.json());

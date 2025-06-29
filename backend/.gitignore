@@ -6,3 +6,10 @@ logs
 */yarn.lock
 */package-lock.json
 *.pem
+../lambdas/package.json
+../lambdas/target
+
+../udp-listener/package.json
+
+../package.json
+
