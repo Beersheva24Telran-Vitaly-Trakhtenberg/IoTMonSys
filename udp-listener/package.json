@@ -19,7 +19,7 @@
   "type": "commonjs",
   "dependencies": {
     "@aws-sdk/client-kinesis": "^3.0.0",
-    "@iotmonsys/logger-node": "file:../logger-node",
+    "@vitaly-yosef/node-smart-logger": "^1.1.5",
     "body-parser": "^2.2.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

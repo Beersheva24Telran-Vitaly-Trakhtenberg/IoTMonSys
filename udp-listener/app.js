@@ -3,7 +3,8 @@ const path = require('path');
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const UdpListener = require('./src/udpListener');
-const { createLogger } = require('@iotmonsys/logger-node');
+const pkg = require('@vitaly-yosef/node-smart-logger');
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 const { connectDB } = require('./src/database/database');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -21,6 +22,9 @@ app.use(bodyParser.json());
 app.use('/api', discoveryApi);
 
 connectDB().then(() => {
+  const traceId = generateLoggerTraceId();
+  setLoggerContext({ operation: 'app-startup', traceId });
+  
   const listener = new UdpListener(UDP_HOST, UDP_PORT);
   listener.start();
 
@@ -32,26 +36,33 @@ connectDB().then(() => {
 
   const server = app.listen(API_PORT, () => {
     logger.info(`API-server started on ${API_PORT}`);
+    clearLoggerContext();
   });
 
   process.on('SIGINT', async () => {
+    const shutdownTraceId = generateLoggerTraceId();
+    setLoggerContext({ operation: 'app-shutdown', traceId: shutdownTraceId });
     logger.info('Stopping work...');
     listener.stop();
 
     server.close(() => {
       logger.info('HTTP-server stopped.');
+      clearLoggerContext();
     });
 
     process.exit(0);
   });
 
   process.on('unhandledRejection', (err) => {
-    logger.alert(`Unhandled Rejection: ${err.message}`);
+    const errorTraceId = generateLoggerTraceId();
+    setLoggerContext({ operation: 'unhandled-rejection', traceId: errorTraceId });
+    logger.alert(`Unhandled Rejection: ${err.message}`, { stack: err.stack });
     listener.stop();
-    server.close();
+    clearLoggerContext();
+    
     process.exit(1);
   });
 }).catch(err => {
-  logger.error(`Can't connect to MongoDB database: ${err.message}`);
+  logger.error(`Can't connect to MongoDB database: ${err.message}. ${err.stack}`);
   process.exit(1);
 });

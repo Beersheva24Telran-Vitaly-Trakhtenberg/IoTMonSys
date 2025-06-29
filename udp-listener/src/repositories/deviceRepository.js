@@ -1,5 +1,6 @@
 const Device = require('../models/Device');
-const { createLogger } = require('@iotmonsys/logger-node');
+const pkg = require('@vitaly-yosef/node-smart-logger');
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 
 const logger = createLogger('device-repository', './logs');
 
@@ -10,9 +11,16 @@ const logger = createLogger('device-repository', './logs');
  */
 async function findDeviceById(deviceId) {
   try {
-    return await Device.findOne({ deviceId });
+    const traceId = generateLoggerTraceId();
+    setLoggerContext({ operation: 'find-device', deviceId, traceId });
+    
+    const device = await Device.findOne({ deviceId });
+    
+    clearLoggerContext();
+    return device;
   } catch (error) {
     logger.error(`Repo: Error finding device by ID ${deviceId}: ${error.message}`);
+    clearLoggerContext();
     throw error;
   }
 }
@@ -24,12 +32,19 @@ async function findDeviceById(deviceId) {
  */
 async function createDevice(deviceDetails) {
   try {
+    const traceId = generateLoggerTraceId();
+    const deviceId = deviceDetails.deviceId;
+    setLoggerContext({ operation: 'create-device', deviceId, traceId });
+    
     const newDevice = new Device(deviceDetails);
     const savedDevice = await newDevice.save();
     logger.debug(`Repo: Device ${savedDevice.deviceId} created with ID: ${savedDevice._id}`);
+    
+    clearLoggerContext();
     return savedDevice;
   } catch (error) {
     logger.error(`Repo: Error creating device: ${error.message}`);
+    clearLoggerContext();
     throw error;
   }
 }
@@ -42,13 +57,20 @@ async function createDevice(deviceDetails) {
  */
 async function updateDevice(device, updateDetails) {
   try {
+    const traceId = generateLoggerTraceId();
+    const deviceId = device.deviceId;
+    setLoggerContext({ operation: 'update-device', deviceId, traceId });
+    
     Object.assign(device, updateDetails);
     device.updatedAt = new Date();
     const updatedDevice = await device.save();
     logger.debug(`Repo: Device ${updatedDevice.deviceId} updated.`);
+    
+    clearLoggerContext();
     return updatedDevice;
   } catch (error) {
     logger.error(`Repo: Error updating device ${device.deviceId}: ${error.message}`);
+    clearLoggerContext();
     throw error;
   }
 }
