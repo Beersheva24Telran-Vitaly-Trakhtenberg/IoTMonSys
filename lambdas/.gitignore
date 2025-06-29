@@ -54,6 +54,8 @@ buildNumber.properties
 ../__tests__/
 ../logs/
 ../simulator/logs/
+../simulator/.yarn/
+../backend/.yarn/
 ../udp-listener/.env
 ../udp-listener/logs/
 /packaged.yaml
