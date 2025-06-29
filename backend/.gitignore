@@ -3,13 +3,22 @@ package-lock.json
 .env
 node_modules
 logs
+
+.yarn/
 */yarn.lock
 */package-lock.json
 *.pem
+
 ../lambdas/package.json
 ../lambdas/target
 
 ../udp-listener/package.json
 
+../simulator/.pnp.cjs
+../simulator/.pnp.loader.mjs
+../simulator/.yarn/
+
 ../package.json
 
+.pnp.cjs
+.pnp.loader.mjs
