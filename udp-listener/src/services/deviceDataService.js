@@ -5,7 +5,9 @@ const { findDeviceById, createDevice, updateDevice } = require('../repositories/
 const { createDeviceData } = require('../repositories/deviceDataRepository');
 const { sendToKinesis } = require('./kinesisService');
 
-const { createLogger, generateLoggerTraceId } = require('@iotmonsys/logger-node');
+const pkg = require('@vitaly-yosef/node-smart-logger');
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
+
 
 const logger = createLogger('device-data-service', './logs');
 
@@ -55,7 +57,7 @@ const getDiscoveryMode = () => {
  */
 const saveDeviceData = async (data) => {
   const traceId = data.traceId || generateLoggerTraceId();
-  logger.withOperationContext({ deviceId: data.deviceId, traceId });
+  setLoggerContext({ deviceId: data.deviceId, traceId });
   logger.info(`Processing data from device ${data.deviceId}`);
   
   try {
@@ -120,11 +122,11 @@ const saveDeviceData = async (data) => {
       }
     }
 
-    logger.clearContext();
+    clearLoggerContext();
     return res;
   } catch (error) {
     logger.error(`Error(s) saving device's data: ${error.message}. `);
-    logger.clearContext();
+    clearLoggerContext();
     throw error;
   }
 };
