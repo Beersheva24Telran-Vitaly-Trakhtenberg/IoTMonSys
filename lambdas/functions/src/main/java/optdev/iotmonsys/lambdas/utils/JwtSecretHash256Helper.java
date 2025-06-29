@@ -20,7 +20,7 @@ public class JwtSecretHash256Helper {
         if (secretBytes.length < 32) {
             byte[] paddedSecret = new byte[32];
             System.arraycopy(secretBytes, 0, paddedSecret, 0, secretBytes.length);
-            byte secretBytesLength = secretBytes.length;
+            int secretBytesLength = secretBytes.length;
             for (int i = secretBytesLength; i < 32; i++) {
                 byte j = (byte) ((i - secretBytesLength) % secretBytesLength);
                 paddedSecret[i] = secretBytes[j];
