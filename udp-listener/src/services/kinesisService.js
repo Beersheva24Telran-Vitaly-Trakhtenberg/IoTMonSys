@@ -1,5 +1,6 @@
 const { KinesisClient, PutRecordCommand } = require('@aws-sdk/client-kinesis');
-const { createLogger, generateLoggerTraceId } = require('@iotmonsys/logger-node');
+const pkg = require('@vitaly-yosef/node-smart-logger');
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -30,11 +31,11 @@ const sendToKinesis = async (data, partitionKey) => {
   // Генерируем или используем существующий traceId для трассировки
   const traceId = data.traceId || generateLoggerTraceId();
   const deviceId = data.deviceId || data.device_id;
-  logger.withOperationContext({ deviceId, traceId, service: 'kinesis' });
+  setLoggerContext({ deviceId, traceId, service: 'kinesis' });
   
   if (!streamName) {
     logger.error('Cannot send to Kinesis: stream name is not configured.');
-    logger.clearContext();
+    clearLoggerContext();
     return null;
   }
 
@@ -70,7 +71,7 @@ const sendToKinesis = async (data, partitionKey) => {
     
     logger.info(`Successfully sent data to Kinesis. ShardId: ${result.ShardId}, SequenceNumber: ${result.SequenceNumber?.substring(0, 10)}...`);
     logger.debug(`Full Kinesis response: ${JSON.stringify(result)}`);
-    logger.clearContext();
+    clearLoggerContext();
     return result;
   } catch (error) {
     logger.error(`Error sending data to Kinesis: ${error.message}`, {
@@ -86,11 +87,11 @@ const sendToKinesis = async (data, partitionKey) => {
     if (error.name === 'ProvisionedThroughputExceededException') {
       logger.info('Throughput exceeded. Will retry after delay.');
       await new Promise(resolve => setTimeout(resolve, 1000));
-      logger.clearContext(); // Очищаем контекст перед рекурсивным вызовом
+      clearLoggerContext(); // Очищаем контекст перед рекурсивным вызовом
       return sendToKinesis(data, partitionKey); // Рекурсивный вызов для повторной попытки
     }
     
-    logger.clearContext();
+    clearLoggerContext();
     return null;
   }
 };
