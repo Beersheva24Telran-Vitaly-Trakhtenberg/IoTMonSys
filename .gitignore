@@ -26,3 +26,5 @@ lambdas/shared-dependencies/dependency-reduced-pom.xml
 
 /lambdas/.aws-sam/
 /lambdas/shared-dependencies/dependency-reduced-pom.xml
+
+backend/.yarn/

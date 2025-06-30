@@ -12,18 +12,23 @@
     "lambdas",
     "simulator",
     "udp-listener",
-    "infra",
-    "logger-node"
+    "infra"
   ],
   "scripts": {
-    "start:backend": "yarn workspace backend start",
-    "start:frontend": "yarn workspace frontend start",
+    "start:backend": "yarn workspace @iotmonsys/backend start",
+    "start:udp-listener": "yarn workspace @iotmonsys/udp-listener start",
+    "start:simulator": "yarn workspace @iotmonsys/simulator start",
+    "dev:backend": "yarn workspace @iotmonsys/backend dev",
+    "dev:udp-listener": "yarn workspace @iotmonsys/udp-listener dev",
+    "dev:simulator": "yarn workspace @iotmonsys/simulator dev",
     "build": "yarn workspaces run build",
     "test": "yarn workspaces run test",
     "prepare": "husky install",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "clean": "rm -rf .yarn/install-state.gz && rm -rf node_modules && rm -rf */node_modules",
+    "reinstall": "rm -rf .yarn/install-state.gz && rm -rf node_modules && rm -rf */node_modules && yarn install"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.29.0",

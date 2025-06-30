@@ -15,6 +15,16 @@ const README_PATH = path.join(__dirname, '../docs/IoTMonSys-developing_plan.md')
 const HEADER_REGEX = /^(#+)\s+(.*?)(?:\s+-\s*(\d+)%\s*(?:done)?!?)?$/i;
 const TASK_REGEX = /^- \[(x| )\]/;
 
+// Функция для генерации якорей из заголовков
+function generateAnchor(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^\wа-яё\s-]/gi, '') // Удаляем специальные символы
+    .replace(/\s+/g, '-') // Заменяем пробелы на дефисы
+    .replace(/--+/g, '-') // Заменяем множественные дефисы на один
+    .replace(/^-+|-+$/g, ''); // Удаляем дефисы в начале и конце
+}
+
 // Функция для чтения файла
 function readFile() {
   try {
@@ -99,7 +109,7 @@ function generateToc(lines, sectionsProgress) {
       if (level === 1) continue;
       
       const title = headerMatch[2];
-      const anchor = generateAnchor(title);
+      let anchor = generateAnchor(title);
       
       // Обработка дублирующихся якорей
       if (anchors[anchor]) {
@@ -113,7 +123,9 @@ function generateToc(lines, sectionsProgress) {
       const indent = '  '.repeat(level - 2);
       
       // Получаем прогресс для данного заголовка
-      const progress = sectionsProgress[title];
+      const sectionPath = title;
+      const section = sectionsProgress.get(sectionPath);
+      const progress = section ? section.percentage : null;
       
       // Форматируем строку оглавления
       let tocLine = `${indent}- [`;
