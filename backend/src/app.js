@@ -80,8 +80,17 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/api-docs.json', (req, res) => {
+app.use('/api/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec,
+    {
+      explorer: true,
+      swaggerOptions: {
+        url: '/api/api-docs/swagger.json',
+      },
+    })
+);
+app.get('/api/api-docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
