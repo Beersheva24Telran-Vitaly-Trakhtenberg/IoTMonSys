@@ -25,3 +25,7 @@ logs
 
 .pnp.cjs
 .pnp.loader.mjs
+backend-config.yaml
+
+*.crt
+*.key
