@@ -1,0 +1,10 @@
+yarn.lock
+package-lock.json
+.env
+!.env.example
+node_modules
+logs
+
+../backend/.yarn/
+
+../simulator/.yarn/
