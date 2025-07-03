@@ -10,13 +10,11 @@ build/
 idea/
 .idea/
 target/
-yarn.lock
 package-lock.json
-
-lambdas/shared-dependencies/dependency-reduced-pom.xml
 
 # Yarn
 .yarn/*
+yarn.lock
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
@@ -24,7 +22,10 @@ lambdas/shared-dependencies/dependency-reduced-pom.xml
 !.yarn/versions
 .pnp.*
 
-/lambdas/.aws-sam/
-/lambdas/shared-dependencies/dependency-reduced-pom.xml
+lambdas/.aws-sam/
+lambdas/shared-dependencies/dependency-reduced-pom.xml
 
 backend/.yarn/
+backend/backend-config.yaml
+backend/iotmonsys.crt
+backend/iotmonsys.key
