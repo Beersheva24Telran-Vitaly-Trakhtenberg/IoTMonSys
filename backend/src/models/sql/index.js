@@ -3,104 +3,136 @@ import Permission from './Permission.js';
 import RolePermission from './RolePermission.js';
 import UserSession from './UserSession.js';
 import sequelize from '../../config/sequelize.js';
-import { createLogger } from "@iotmonsys/logger-node";
+import pkg from "@vitaly-yosef/node-smart-logger";
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 
-let logger = createLogger('backend', './logs');
+const logger = createLogger('backend', './logs');
 
 export const syncDatabase = async (force = false) => {
+  const syncTraceId = generateLoggerTraceId();
+
   try {
-    await sequelize.sync({ force });
-    logger.info('Database synchronized successfully');
-    return true;
+    setLoggerContext({ operation: 'db-sync', traceId: syncTraceId });
+    try {
+      await sequelize.sync({ force });
+      logger.info('Database synchronized successfully');
+      clearLoggerContext();
+      return true;
+    } catch (error) {
+      logger.alert('Error synchronizing database:', error);
+      clearLoggerContext();
+      return false;
+    }
   } catch (error) {
-    logger.alert('Error synchronizing database:', error);
+    logger.error('Error in syncDatabase:', error);
+    clearLoggerContext();
     return false;
   }
 };
 
 export const initializePermissions = async () => {
-  const defaultPermissions = [
-    { name: 'user:read', description: 'Can read user data' },
-    { name: 'user:write', description: 'Can create and update user data' },
-    { name: 'user:delete', description: 'Can delete users' },
-    { name: 'device:read', description: 'Can read device data' },
-    { name: 'device:write', description: 'Can create and update devices' },
-    { name: 'device:delete', description: 'Can delete devices' },
-    { name: 'alert:read', description: 'Can read alerts' },
-    { name: 'alert:write', description: 'Can create and update alerts' },
-    { name: 'alert:delete', description: 'Can delete alerts' },
-    { name: 'system:read', description: 'Can read system settings' },
-    { name: 'system:write', description: 'Can update system settings' }
-  ];
+  const permTraceId = generateLoggerTraceId();
 
   try {
-    for (const perm of defaultPermissions) {
-      await Permission.findOrCreate({
-        where: { name: perm.name },
-        defaults: perm
-      });
-    }
-    console.log('Default permissions initialized');
-
-    const rolePermissions = [
-      ...defaultPermissions.map(p => ({ role: 'admin', permissionName: p.name })),
-
-      { role: 'operator', permissionName: 'device:read' },
-      { role: 'operator', permissionName: 'device:write' },
-      { role: 'operator', permissionName: 'alert:read' },
-      { role: 'operator', permissionName: 'alert:write' },
-
-      { role: 'user', permissionName: 'device:read' },
-      { role: 'user', permissionName: 'alert:read' }
+    setLoggerContext({ operation: 'init-permissions', traceId: permTraceId });
+    const defaultPermissions = [
+      { name: 'user:read', description: 'Can read user data' },
+      { name: 'user:write', description: 'Can create and update user data' },
+      { name: 'user:delete', description: 'Can delete users' },
+      { name: 'device:read', description: 'Can read device data' },
+      { name: 'device:write', description: 'Can create and update devices' },
+      { name: 'device:delete', description: 'Can delete devices' },
+      { name: 'alert:read', description: 'Can read alerts' },
+      { name: 'alert:write', description: 'Can create and update alerts' },
+      { name: 'alert:delete', description: 'Can delete alerts' },
+      { name: 'system:read', description: 'Can read system settings' },
+      { name: 'system:write', description: 'Can update system settings' }
     ];
 
-    for (const rp of rolePermissions) {
-      const permission = await Permission.findOne({ where: { name: rp.permissionName } });
-      if (permission) {
-        await RolePermission.findOrCreate({
-          where: {
-            role: rp.role,
-            permissionId: permission.id
-          },
-          defaults: {
-            role: rp.role,
-            permissionId: permission.id
-          }
+    try {
+      for (const perm of defaultPermissions) {
+        await Permission.findOrCreate({
+          where: { name: perm.name },
+          defaults: perm
         });
       }
-    }
-    logger.info('Role permissions initialized');
+      logger.debug('Default permissions initialized');
 
-    return true;
+      const rolePermissions = [
+        ...defaultPermissions.map(p => ({ role: 'admin', permissionName: p.name })),
+
+        { role: 'operator', permissionName: 'device:read' },
+        { role: 'operator', permissionName: 'device:write' },
+        { role: 'operator', permissionName: 'alert:read' },
+        { role: 'operator', permissionName: 'alert:write' },
+
+        { role: 'user', permissionName: 'device:read' },
+        { role: 'user', permissionName: 'alert:read' }
+      ];
+
+      for (const rp of rolePermissions) {
+        const permission = await Permission.findOne({ where: { name: rp.permissionName } });
+        if (permission) {
+          await RolePermission.findOrCreate({
+            where: {
+              role: rp.role,
+              permissionId: permission.id
+            },
+            defaults: {
+              role: rp.role,
+              permissionId: permission.id
+            }
+          });
+        }
+      }
+      logger.info('Role permissions initialized');
+      clearLoggerContext();
+      return true;
+    } catch (error) {
+      logger.error('Error initializing permissions:', error);
+      clearLoggerContext();
+      return false;
+    }
   } catch (error) {
-    logger.error('Error initializing permissions:', error);
+    logger.error('Error in initializePermissions:', error);
+    clearLoggerContext();
     return false;
   }
 };
 
 export const createDefaultAdmin = async () => {
+  const adminTraceId = generateLoggerTraceId();
+
   try {
-    const [admin, created] = await User.findOrCreate({
-      where: { username: 'admin' },
-      defaults: {
-        username: 'admin',
-        email: 'admin@iotmonsys.com',
-        password: 'admin123', // Will be hashed via the huck beforeCreate
-        role: 'admin',
-        firstName: 'Admin',
-        lastName: 'User'
+    setLoggerContext({ operation: 'create-admin', traceId: adminTraceId });
+    try {
+      const [admin, created] = await User.findOrCreate({
+        where: { username: 'admin' },
+        defaults: {
+          username: 'admin',
+          email: 'admin@iotmonsys.com',
+          password: 'admin123', // Will be hashed via the huck beforeCreate
+          role: 'admin',
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      });
+
+      if (created) {
+        logger.info('Default admin user created');
+      } else {
+        logger.debug('Default admin user already exists');
       }
-    });
-
-    if (created) {
-      console.log('Default admin user created');
-    } else {
-      console.log('Default admin user already exists');
+      clearLoggerContext();
+      return true;
+    } catch (error) {
+      logger.error('Error creating default admin:', error);
+      clearLoggerContext();
+      return false;
     }
-
-    return true;
   } catch (error) {
-    console.error('Error creating default admin:', error);
+    logger.error('Error in createDefaultAdmin:', error);
+    clearLoggerContext();
     return false;
   }
 };
