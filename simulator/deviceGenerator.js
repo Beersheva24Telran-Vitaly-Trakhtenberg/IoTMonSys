@@ -49,23 +49,23 @@ class DeviceGenerator {
     this.deviceCount = deviceCount;
     this.interval = interval;
     this.anomalyRate = anomalyRate;
-    
+
     // Инициализируем логгер без явного указания формата, используя настройки из .env
     this.logger = logger || createLogger('device-generator', './logs');
-    
+
     // Создаем уникальный идентификатор для симулятора
     this.simulatorId = `sim-${uuidv4().substring(0, 8)}`;
-    
+
     // Создаем уникальный идентификатор для трассировки логгера
     const loggerTraceId = generateLoggerTraceId();
-    
+
     // Устанавливаем контекст логгера для симулятора
-    setLoggerContext({ 
+    setLoggerContext({
       simulatorId: this.simulatorId,
       deviceCount: this.deviceCount,
       traceId: loggerTraceId
     });
-    
+
     // Инициализируем устройства после настройки логгера
     this.devices = this._initializeDevices(this.deviceCount);
 
@@ -108,12 +108,12 @@ class DeviceGenerator {
       }
 
       const deviceId = `dev-${uuidv4().substring(0, 8)}`;
-      
+
       // Генерируем уникальный trace ID для каждого устройства
       const deviceTraceId = generateLoggerTraceId();
-      
+
       const device = {
-        deviceId: deviceId,
+        deviceId: `dev-${uuidv4().substring(0, 8)}`,
         type: deviceType,
         powerType: powerType,
         name: `${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)} Sensor ${i + 1}`,
@@ -132,7 +132,7 @@ class DeviceGenerator {
 
       // Добавляем устройство в список
       devices.push(device);
-      
+
       // Логируем создание устройства с контекстом
       this.logger.withOperationContext({
         device: deviceId,
@@ -173,7 +173,7 @@ class DeviceGenerator {
   _updateValue(device) {
     // Используем trace ID устройства или генерируем новый
     const traceId = device.traceId || generateLoggerTraceId();
-    
+
     // Создаем контекст для текущей операции обновления
     const operationContext = {
       deviceId: device.deviceId,
@@ -181,7 +181,7 @@ class DeviceGenerator {
       powerType: device.powerType,
       traceId: traceId
     };
-    
+
     // Создаем копию устройства для обновления
     const updatedDevice = { ...device };
     const type = updatedDevice.type;
@@ -252,12 +252,12 @@ class DeviceGenerator {
       if (updatedDevice.powerType === POWER_TYPES.BATTERY) {
         // Разная скорость разрядки в зависимости от типа устройства и наличия аномалий
         let dischargeRate = Math.random() * 0.2; // Базовая скорость разрядки
-        
+
         // Увеличиваем скорость разрядки при аномалиях
         if (isAnomaly) {
           dischargeRate *= 5;
         }
-        
+
         // Разные типы устройств потребляют разное количество энергии
         switch (type) {
           case DATA_TYPES.TEMPERATURE:
@@ -275,10 +275,10 @@ class DeviceGenerator {
           default:
             dischargeRate *= 1;
         }
-        
+
         // Обновляем заряд батареи
         updatedDevice.batteryLevel = Math.max(0, updatedDevice.batteryLevel - dischargeRate);
-        
+
         // Логируем низкий заряд батареи
         if (updatedDevice.batteryLevel < 20) {
           this.logger.warn(`Low battery for device ${updatedDevice.deviceId}: ${updatedDevice.batteryLevel.toFixed(1)}%`);
@@ -287,7 +287,7 @@ class DeviceGenerator {
 
       // Обновляем значение в устройстве
       updatedDevice.lastValue = newValue;
-      
+
       // Формируем объект данных для отправки
       const data = {
         id: uuidv4(),
@@ -299,7 +299,7 @@ class DeviceGenerator {
         location: updatedDevice.location,
         traceId: traceId // Добавляем trace ID в данные для отправки
       };
-      
+
       // Добавляем информацию о питании
       if (updatedDevice.powerType === POWER_TYPES.BATTERY) {
         data.batteryLevel = updatedDevice.batteryLevel;
@@ -312,7 +312,7 @@ class DeviceGenerator {
         const isDaylight = dayTime >= 6 && dayTime <= 20;
         data.solarCharge = isDaylight ? 50 + Math.random() * 50 : Math.random() * 10;
       }
-      
+
       // Добавляем информацию об аномалии, если она есть
       if (isAnomaly) {
         data.anomaly = {
@@ -320,13 +320,13 @@ class DeviceGenerator {
           details: anomalyDetails
         };
       }
-      
+
       // Обновляем устройство в массиве устройств
       const deviceIndex = this.devices.findIndex(d => d.deviceId === updatedDevice.deviceId);
       if (deviceIndex !== -1) {
         this.devices[deviceIndex] = updatedDevice;
       }
-      
+
       return data;
     });
   }
@@ -401,7 +401,7 @@ class DeviceGenerator {
       this.logger.warn(`Device ID ${deviceId} not found`);
       return false;
     }
-    
+
     // Устанавливаем контекст логгера для текущего устройства и операции
     if (this.logger && typeof this.logger.withOperationContext === 'function') {
       this.logger.withOperationContext({
@@ -421,26 +421,26 @@ class DeviceGenerator {
           const type = device.type;
           const powerType = device.powerType;
           const referenceVoltage = device.referenceVoltage;
-          
+
           this.logger.info(`Resetting device ${deviceId} (type: ${type}, powerType: ${powerType})`);
-          
+
           this.devices[deviceIndex].lastValue = this._generateInitialValue(type);
           this.devices[deviceIndex].anomalyMode = false;
-          
+
           // Сохраняем тип питания и обрабатываем батарейное питание
           if (powerType === POWER_TYPES.BATTERY) {
             const oldBatteryLevel = this.devices[deviceIndex].batteryLevel;
             this.devices[deviceIndex].batteryLevel = Math.floor(Math.random() * 100);
-            
+
             this.logger.debug(`Battery level reset from ${oldBatteryLevel.toFixed(2)}% to ${this.devices[deviceIndex].batteryLevel}% for device ${deviceId}`);
-            
+
             // Сохраняем эталонное напряжение, если оно было
             if (referenceVoltage) {
               this.devices[deviceIndex].referenceVoltage = referenceVoltage;
               this.logger.debug(`Reference voltage preserved at ${referenceVoltage}V for device ${deviceId}`);
             }
           }
-          
+
           this.logger.info(`Device ${deviceId} has been reset.`);
         }
         break;
