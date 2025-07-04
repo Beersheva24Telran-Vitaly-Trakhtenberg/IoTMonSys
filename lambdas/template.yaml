@@ -64,7 +64,6 @@ Globals:
         JWT_SECRET: !Ref JwtSecret
         SNS_TOPIC_ARN: !Ref SnsTopicArn
         API_ENDPOINT_PARAMETER: !Ref ApiEndpointParameterName
-    CodeUri: ./shared-dependencies/target/shared-dependencies-1.0-SNAPSHOT.jar
 
 Resources:
   # Shared Dependencies Layer
@@ -92,6 +91,7 @@ Resources:
       FunctionName: !Sub iotmonsys-${Stage}-approve-block-remove-device
       Description: Handles device approval, blocking, and removal operations
       Handler: optdev.iotmonsys.lambdas.ApproveBlockRemoveDeviceHandler::handleRequest
+      CodeUri: ./functions
       Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Layers:
         - !Ref SharedDependenciesLayer
@@ -121,6 +121,7 @@ Resources:
       FunctionName: !Sub iotmonsys-${Stage}-device-added-event
       Description: Handles new device added event
       Handler: optdev.iotmonsys.lambdas.DeviceAddedEventHandler::handleRequest
+      CodeUri: ./functions
       Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Policies:
         - SSMParameterReadPolicy:
@@ -131,6 +132,8 @@ Resources:
         Variables:
           SMS_ENABLED: !Ref SmsEnabled
           SMS_PHONE_NUMBER: !Ref SmsPhoneNumber
+          SNS_TOPIC_ARN: !Ref SnsTopicArn
+          API_ENDPOINT_PARAMETER: !Ref ApiEndpointParameterName
       Events:
         ApiEvent:
           Type: Api
@@ -145,6 +148,7 @@ Resources:
       FunctionName: !Sub iotmonsys-${Stage}-data-processor
       Description: Processes device data from Kinesis stream, detects anomalies and sends alerts
       Handler: optdev.iotmonsys.lambdas.DataProcessorHandler::handleRequest
+      CodeUri: ./functions
       Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Layers:
         - !Ref SharedDependenciesLayer
@@ -168,6 +172,7 @@ Resources:
       FunctionName: !Sub iotmonsys-${Stage}-error-poller
       Description: Monitors devices for offline status and low battery levels
       Handler: optdev.iotmonsys.lambdas.ErrorPollerHandler::handleRequest
+      CodeUri: ./functions
       Role: arn:aws:iam::394163297125:role/service-role/IOTMonSys_Lambda_Permissions
       Layers:
         - !Ref SharedDependenciesLayer

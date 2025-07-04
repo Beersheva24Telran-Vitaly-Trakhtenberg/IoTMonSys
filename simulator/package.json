@@ -1,5 +1,5 @@
 {
-  "name": "@iotmonsys/simulator",
+  "name": "@vitaly-yosef/node-smart-logger",
   "version": "0.0.1",
   "author": "Vitaly Trakhtenberg",
   "description": "IoT devices simulator",
@@ -22,7 +22,7 @@
     "nodemon": "^3.0.2"
   },
   "dependencies": {
-    "@iotmonsys/logger-node": "file:../logger-node",
+    "@vitaly-yosef/node-smart-logger": "^1.1.4",
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
     "rotating-file-stream": "^3.2.6",
