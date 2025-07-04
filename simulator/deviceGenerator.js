@@ -67,9 +67,10 @@ class DeviceGenerator {
     });
     
     // Инициализируем устройства после настройки логгера
-    this.devices = this._initializeDevices(deviceCount);
-    
-    this.logger.info(`Initialized ${deviceCount} devices`);
+    this.devices = this._initializeDevices(this.deviceCount);
+
+    // Use for logging real number of intialized devices
+    this.logger.info(`Initialized ${this.devices.length} devices`);
   }
 
   _initializeDevices(count) {
@@ -133,9 +134,9 @@ class DeviceGenerator {
       devices.push(device);
       
       // Логируем создание устройства с контекстом
-      this.logger.withOperationContext({ 
-        device: deviceId, 
-        traceId: deviceTraceId 
+      this.logger.withOperationContext({
+        device: deviceId,
+        traceId: deviceTraceId
       }, () => {
         this.logger.debug(`Created device: ${JSON.stringify(device)}`);
       });
