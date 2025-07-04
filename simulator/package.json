@@ -22,7 +22,7 @@
     "nodemon": "^3.0.2"
   },
   "dependencies": {
-    "@vitaly-yosef/node-smart-logger": "^1.2.2",
+    "@vitaly-yosef/node-smart-logger": "^1.2.3",
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
     "rotating-file-stream": "^3.2.6",
