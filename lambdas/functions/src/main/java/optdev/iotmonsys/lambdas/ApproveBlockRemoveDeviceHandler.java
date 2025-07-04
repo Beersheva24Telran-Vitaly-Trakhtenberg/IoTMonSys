@@ -23,6 +23,8 @@ import static optdev.iotmonsys.lambdas.utils.WebResponsesHelper.buildJSONRespons
 
 import optdev.iotmonsys.lambdas.utils.SecretsManagerHelper;
 
+import static optdev.iotmonsys.lambdas.utils.JwtSecretHash256Helper.getJwtSecret256;
+import static optdev.iotmonsys.lambdas.utils.WebResponsesHelper.buildJSONResponse;
 
 public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
     private static final String MONGODB_URI = SecretsManagerHelper.getSecret("IoTMonSys/AtlasMongoDBCredentials");
@@ -49,7 +51,7 @@ public class ApproveBlockRemoveDeviceHandler implements RequestStreamHandler{
             JsonNode queryParams = event.path("queryStringParameters");
             if (queryParams != null && queryParams.has("token")) {
                 token = queryParams.get("token").asText();
-
+                
                 Key key = getJwtSecret256();
 
                 if (path.matches("/devices/.+/approve")) {

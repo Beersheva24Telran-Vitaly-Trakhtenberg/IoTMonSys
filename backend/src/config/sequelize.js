@@ -1,10 +1,11 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import { createLogger } from "@iotmonsys/logger-node";
+import pkg from "@vitaly-yosef/node-smart-logger";
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 
 dotenv.config();
 
-let logger = createLogger('backend', './logs');
+const logger = createLogger('backend', './logs');
 
 const dbConfig = {
   database: process.env.POSTGRES_DB_NAME || 'postgres',
@@ -50,15 +51,26 @@ const sequelize = new Sequelize(
 );
 
 export const testConnection = async () => {
+  const connectionTraceId = generateLoggerTraceId();
   const maskedConnectionString = `postgresql://${dbConfig.username}:********@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
-  logger.info('Trying to connect to PostgreSQL, using ' + maskedConnectionString);
-  
+
   try {
-    await sequelize.authenticate();
-    logger.info('PostgreSQL connection has been established successfully.');
-    return true;
+    setLoggerContext({ operation: 'db-connect-test', traceId: connectionTraceId });
+    logger.info('Trying to connect to PostgreSQL, using ' + maskedConnectionString);
+
+    try {
+      await sequelize.authenticate();
+      logger.info('PostgreSQL connection has been established successfully.');
+      clearLoggerContext();
+      return true;
+    } catch (error) {
+      logger.alert('Unable to connect to PostgreSQL database:', error);
+      clearLoggerContext();
+      return false;
+    }
   } catch (error) {
-    logger.alert('Unable to connect to PostgreSQL database:', error);
+    logger.error('Error in testConnection:', error);
+    clearLoggerContext();
     return false;
   }
 };

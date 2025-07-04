@@ -354,3 +354,242 @@ npm install ../logger-node
   * Устранены ошибки "Unauthorized. Invalid token in request" и "SyntaxError: JSON.parse"
   * Налажен полный цикл передачи данных от устройств через UDP-listener в Kinesis и далее в Lambda функции
   * Повышена надежность и поддерживаемость кода Lambda функций
+
+*29-06-2025:*
+### Что готовое добавлено:
+* **Завершена миграция UDP-listener модуля на npm-пакет @vitaly-yosef/node-smart-logger**:
+    * Заменена зависимость @iotmonsys/logger-node на @vitaly-yosef/node-smart-logger версии ^1.1.5
+    * Обновлены импорты во всех файлах с правильным синтаксисом CommonJS
+    * Заменены устаревшие методы logger.withOperationContext и logger.clearContext на setLoggerContext и clearLoggerContext
+    * Добавлена генерация уникальных trace ID для всех операций
+    * Внедрено сквозное отслеживание с передачей traceId между компонентами
+    * Улучшено логирование ошибок с включением стека вызовов
+    * Обновлены следующие файлы:
+        - app.js - основной файл приложения
+        - src/udpListener.js - UDP-сервер
+        - src/services/deviceDataService.js - сервис обработки данных устройств
+        - src/services/kinesisService.js - сервис отправки данных в AWS Kinesis
+        - src/database/database.js - подключение к MongoDB
+        - src/repositories/deviceRepository.js - репозиторий устройств
+        - src/repositories/deviceDataRepository.js - репозиторий данных устройств
+        - src/api/discoveryApi.js - API для управления режимом обнаружения устройств
+
+* **Исправлен алгоритм дополнения JWT-ключа в Lambda функциях**:
+    * Улучшен класс JwtSecretHash256Helper для корректного циклического дополнения ключа
+    * Реализован алгоритм, совместимый с Node.js реализацией в backend
+    * Исправлена потенциальная ошибка выхода за границы массива при дополнении ключа
+    * Обеспечена совместимость JWT-токенов между всеми компонентами системы
+
+* **Восстановлены и документированы .env файлы для модулей проекта**:
+    * Создан подробный .env.example для UDP-listener с комментариями для каждой переменной
+    * Добавлены переменные окружения для MongoDB, AWS Kinesis, AWS CloudWatch и логгера
+    * Документированы требования к AWS учетным данным и разрешениям
+
+### Преимущества выполненных изменений:
+1. **Единая система логирования** во всех модулях проекта (backend, simulator, udp-listener)
+2. **Улучшенная отслеживаемость операций** благодаря сквозным trace ID
+3. **Совместимость JWT-токенов** между Java и Node.js компонентами
+4. **Упрощенная настройка окружения** с помощью подробно документированных .env файлов
+5. **Повышенная надежность** благодаря улучшенной обработке ошибок и контексту логирования
+
+## Следующие шаги:
+1. **Разработка функционала модуля backend**:
+
+I. Основные API эндпоинты для разработки
+1. Authentication API
+```
+   POST /api/auth/login             # Авторизация пользователя
+   POST /api/auth/register          # Регистрация (только для admin)
+   POST /api/auth/refresh-token     # Обновление JWT токена
+   GET /api/auth/me                 # Получение данных профиля
+```   
+2. User Management API
+```
+   GET /api/users                  # Список пользователей (admin)
+   GET /api/users/:id              # Данные пользователя
+   PUT /api/users/:id              # Обновление пользователя
+   DELETE /api/users/:id           # Удаление пользователя
+```   
+3. Device Management API
+``` 
+   GET /api/devices                # Список всех устройств
+   POST /api/devices               # Регистрация нового устройства
+   GET /api/devices/:id            # Данные устройства
+   PUT /api/devices/:id            # Обновление устройства
+   DELETE /api/devices/:id         # Удаление устройства
+   POST /api/devices/:id/command   # Отправка команды устройству
+```   
+4. Device Data API
+```
+   GET /api/device-data            # Данные со всех устройств (с фильтрацией)
+   GET /api/device-data/:deviceId  # Данные с конкретного устройства
+   GET /api/device-data/analytics  # Агрегированные данные для дашборда
+```   
+5. Alerts API
+```
+   GET /api/alerts                 # Список всех алертов
+   PUT /api/alerts/:id             # Обновление статуса алерта
+   GET /api/alerts/settings        # Настройки алертов
+   PUT /api/alerts/settings        # Обновление настроек алертов
+```   
+6. System API
+```
+   GET /api/system/status          # Общий статус системы
+   GET /api/system/logs            # Доступ к логам (с фильтрацией)
+```
+
+   II. Технические доработки для backend
+   1. Аутентификация и авторизация:
+   * Интеграция с JWT + refresh токенами
+   * Middleware для проверки ролей (admin, operator, user)
+   * Интеграция с AWS Cognito (опционально)
+   2. Интеграция с базами данных:
+   * Улучшение слоя доступа к MongoDB
+   * Оптимизация запросов к PostgreSQL
+   * Реализация репозиториев для всех сущностей
+   3. Интеграция с AWS сервисами:
+   * Улучшение взаимодействия с Kinesis
+   * Добавление поддержки SNS для отправки команд устройствам
+   * Интеграция с SQS для обработки очередей сообщений
+   4. Реализация бизнес-логики:
+   * Сервисы для работы с устройствами и их данными
+   * Система уведомлений через WebSockets
+   * Аналитический движок для обработки данных
+   5. Улучшение логирования:
+   * Сквозное логирование с trace ID через все компоненты
+   * Структурированные JSON логи для CloudWatch
+   * Мониторинг производительности API
+   
+   * III. Kubernetes/minikube подготовка
+   1. Контейнеризация:
+   Создание Dockerfile с многоэтапной сборкой:
+   ```dockerfile
+# Этап сборки
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN yarn install
+COPY . .
+RUN yarn build
+
+# Рабочий образ
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY package*.json ./
+
+EXPOSE 3000
+CMD ["node", "dist/app.js"]
+```
+2. Kubernetes ресурсы:
+* Deployment для backend:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+name: iotmonsys-backend
+spec:
+replicas: 2
+selector:
+matchLabels:
+app: iotmonsys-backend
+template:
+metadata:
+labels:
+app: iotmonsys-backend
+spec:
+containers:
+- name: backend
+image: iotmonsys-backend:latest
+ports:
+- containerPort: 3000
+env:
+- name: NODE_ENV
+value: "production"
+# Другие переменные окружения
+```
+* Service для доступа к backend:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+name: iotmonsys-backend-service
+spec:
+selector:
+app: iotmonsys-backend
+ports:
+- port: 80
+  targetPort: 3000
+  type: ClusterIP
+```  
+* ConfigMap для конфигурации:
+```yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+  name: backend-config
+  data:
+  AWS_REGION: "eu-central-1"
+  LOG_LEVEL: "info"
+# Другие не-секретные настройки
+```
+* Secret для чувствительных данных:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+name: backend-secrets
+type: Opaque
+data:
+JWT_SECRET: base64encodedstring
+DB_PASSWORD: base64encodedstring
+# Другие секреты
+```
+3. Сетевая настройка:
+* Ingress контроллер для маршрутизации внешнего трафика
+* Network policies для безопасности сети
+* Service mesh (например, Istio) для сложных сценариев маршрутизации
+4. Мониторинг в k8s:
+* Prometheus для сбора метрик
+* Grafana для визуализации
+* Внедрение health/readiness проверок в API
+
+IV. Рекомендации для тренировки с minikube
+1. Постепенный подход:
+* Сначала запустите простой Deployment + Service
+* Добавьте ConfigMap и Secret
+* Внедрите Ingress-контроллер
+* Настройте мониторинг
+2. Необходимые модификации в коде:
+* Добавьте health-чеки:
+```javascript
+app.get('/health', (req, res) => {
+res.status(200).json({ status: 'ok' });
+});
+
+app.get('/readiness', async (req, res) => {
+try {
+await checkDatabaseConnection();
+res.status(200).json({ status: 'ok' });
+} catch (error) {
+res.status(500).json({ status: 'error' });
+}
+});
+```
+* Улучшите обработку сигналов завершения:
+```javascript
+['SIGTERM', 'SIGINT'].forEach(signal => {
+process.on(signal, async () => {
+logger.info(`Received ${signal}, shutting down gracefully`);
+// Закрытие соединений с БД
+// Завершение обработки запросов
+process.exit(0);
+});
+});
+```
+3. Тестирование масштабирования:
+* Используйте HorizontalPodAutoscaler
+* Настройте Resource Requests and Limits
+
+2. **CloudWatch Dashboard для мониторинга**:
