@@ -14,7 +14,11 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@vitaly-yosef/node-smart-logger": "^1.1.5",
+    "@aws-sdk/client-cognito-identity-provider": "^3.840.0",
+    "@aws-sdk/client-secrets-manager": "^3.529.1",
+    "@aws-sdk/client-ses": "^3.529.1",
+    "@vitaly-yosef/node-smart-logger": "^1.2.3",
+    "aws-jwt-verify": "^5.1.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -33,8 +37,10 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "supertest": "^6.3.4"
   },
   "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c"
 }

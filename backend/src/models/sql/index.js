@@ -12,21 +12,27 @@ export const syncDatabase = async (force = false) => {
   const syncTraceId = generateLoggerTraceId();
 
   try {
-    setLoggerContext({ operation: 'db-sync', traceId: syncTraceId });
+    // Устанавливаем контекст логгера
+    setLoggerContext({
+      traceId: syncTraceId,
+      service: 'backend',
+      operation: 'db-sync',
+    });
+    
     try {
       await sequelize.sync({ force });
       logger.info('Database synchronized successfully');
-      clearLoggerContext();
       return true;
     } catch (error) {
       logger.alert('Error synchronizing database:', error);
-      clearLoggerContext();
       return false;
     }
   } catch (error) {
     logger.error('Error in syncDatabase:', error);
-    clearLoggerContext();
     return false;
+  } finally {
+    // Очищаем контекст логгера
+    clearLoggerContext();
   }
 };
 
@@ -34,7 +40,13 @@ export const initializePermissions = async () => {
   const permTraceId = generateLoggerTraceId();
 
   try {
-    setLoggerContext({ operation: 'init-permissions', traceId: permTraceId });
+    // Устанавливаем контекст логгера
+    setLoggerContext({
+      traceId: permTraceId,
+      service: 'backend',
+      operation: 'init-permissions',
+    });
+    
     const defaultPermissions = [
       { name: 'user:read', description: 'Can read user data' },
       { name: 'user:write', description: 'Can create and update user data' },
@@ -86,17 +98,17 @@ export const initializePermissions = async () => {
         }
       }
       logger.info('Role permissions initialized');
-      clearLoggerContext();
       return true;
     } catch (error) {
       logger.error('Error initializing permissions:', error);
-      clearLoggerContext();
       return false;
     }
   } catch (error) {
     logger.error('Error in initializePermissions:', error);
-    clearLoggerContext();
     return false;
+  } finally {
+    // Очищаем контекст логгера
+    clearLoggerContext();
   }
 };
 
@@ -104,7 +116,13 @@ export const createDefaultAdmin = async () => {
   const adminTraceId = generateLoggerTraceId();
 
   try {
-    setLoggerContext({ operation: 'create-admin', traceId: adminTraceId });
+    // Устанавливаем контекст логгера
+    setLoggerContext({
+      traceId: adminTraceId,
+      service: 'backend',
+      operation: 'create-default-admin',
+    });
+    
     try {
       const [admin, created] = await User.findOrCreate({
         where: { username: 'admin' },
@@ -123,17 +141,17 @@ export const createDefaultAdmin = async () => {
       } else {
         logger.debug('Default admin user already exists');
       }
-      clearLoggerContext();
       return true;
     } catch (error) {
       logger.error('Error creating default admin:', error);
-      clearLoggerContext();
       return false;
     }
   } catch (error) {
     logger.error('Error in createDefaultAdmin:', error);
-    clearLoggerContext();
     return false;
+  } finally {
+    // Очищаем контекст логгера
+    clearLoggerContext();
   }
 };
 
