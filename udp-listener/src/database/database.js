@@ -3,7 +3,8 @@ const path = require('path');
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const mongoose = require('mongoose');
-const { createLogger } = require('@iotmonsys/logger-node');
+const pkg = require('@vitaly-yosef/node-smart-logger');
+const { createLogger, generateLoggerTraceId, setLoggerContext, clearLoggerContext } = pkg;
 
 const logger = createLogger('database', './logs');
 
@@ -14,8 +15,12 @@ const logger = createLogger('database', './logs');
  */
 async function connectDB(uri = process.env.MONGODB_URI) {
   try {
+    const traceId = generateLoggerTraceId();
+    setLoggerContext({ operation: 'db-connect', traceId });
+
     if (mongoose.connection.readyState === 1) {
         logger.debug('Using existing connection to MongoDB.');
+        clearLoggerContext();
       return mongoose.connection;
     }
 
@@ -29,14 +34,13 @@ async function connectDB(uri = process.env.MONGODB_URI) {
       connectTimeoutMS: 10000,
     };
 
-    logger.debug(`Connection string: ${uri}, options: ` + Object.keys(options) + `, logger: ` + Object.keys(logger));
     await mongoose.connect(uri, options);
-
-    logger.info('Connection to MongoDB Atlas successfully established.');
-
+    logger.info('Connected to MongoDB Atlas successfully!');
+    clearLoggerContext();
     return mongoose.connection;
   } catch (error) {
-    logger.error(`Cannot connect to MongoDB Atlas: ${error.message}`);
+    logger.error(`Error connecting to MongoDB Atlas: ${error.message}`);
+    clearLoggerContext();
     throw error;
   }
 }
@@ -46,9 +50,19 @@ async function connectDB(uri = process.env.MONGODB_URI) {
  * @returns {Promise<void>}
  */
 async function closeMongo() {
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.connection.close();
-    logger.info('Connection to MongoDB closed');
+  try {
+    const traceId = generateLoggerTraceId();
+    setLoggerContext({ operation: 'db-close', traceId });
+
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+      logger.info('MongoDB connection closed.');
+    }
+    clearLoggerContext();
+  } catch (error) {
+    logger.error(`Error closing MongoDB connection: ${error.message}`);
+    clearLoggerContext();
+    throw error;
   }
 }
 

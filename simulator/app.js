@@ -7,8 +7,13 @@ const CommandReceiver = require('./commandReceiver');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const loggerLibrary = require('@iotmonsys/logger-node');
-const logger = loggerLibrary.createLogger('simulator', './logs');
+const { createLogger, generateLoggerTraceId, setLoggerContext } = require('@vitaly-yosef/node-smart-logger');
+const logger = createLogger('simulator', './logs');
+
+// Генерируем уникальный trace ID для сессии симулятора
+const sessionTraceId = generateLoggerTraceId();
+// Устанавливаем контекст логирования для всей сессии
+setLoggerContext({ traceId: sessionTraceId, sessionId: `sim-${Date.now()}` });
 
 const parseIntValue = (value) => {
   const parsedValue = parseInt(value, 10);
@@ -65,7 +70,7 @@ logger.info(`UDP host: ${options.udpHost}:${options.udpPort}`);
 logger.info(`Port for command: ${options.commandPort}`);
 logger.info(`Frequency of anomalies: ${options.anomalyRate}%`);
 
-const deviceGenerator = new DeviceGenerator(deviceCount, anomalyRate);
+const deviceGenerator = new DeviceGenerator(deviceCount, sendInterval, anomalyRate, logger);
 const udpSender = new UdpSender(udpHost, udpPort);
 const commandReceiver = new CommandReceiver(commandPort);
 

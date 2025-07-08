@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { DATA_TYPES, DEVICE_TYPES } = require('../constants/deviceTypes');
+const { DATA_TYPES, DEVICE_TYPES, POWER_TYPES_ARRAY } = require('../constants/deviceTypes');
 
 const deviceSchema = new mongoose.Schema({
   deviceId: {
@@ -40,7 +40,8 @@ const deviceSchema = new mongoose.Schema({
       'active',
       'inactive',
       'broken',
-      'maintenance'
+      'maintenance',
+      'pending'
     ],
     default: 'active',
   },
@@ -80,13 +81,7 @@ const deviceSchema = new mongoose.Schema({
   },
   powerType: {
     type: String,
-    enum: [
-      'battery',
-      'solar',
-      'electricity',
-      'without',
-      'other'
-    ],
+    enum: POWER_TYPES_ARRAY,
     default: 'battery',
   },
   direction: {
