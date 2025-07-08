@@ -55,23 +55,29 @@ export const testConnection = async () => {
   const maskedConnectionString = `postgresql://${dbConfig.username}:********@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
 
   try {
-    setLoggerContext({ operation: 'db-connect-test', traceId: connectionTraceId });
+    // Устанавливаем контекст логгера
+    setLoggerContext({
+      traceId: connectionTraceId,
+      service: 'backend',
+      operation: 'db-connect-test',
+    });
+    
     logger.info('Trying to connect to PostgreSQL, using ' + maskedConnectionString);
 
     try {
       await sequelize.authenticate();
       logger.info('PostgreSQL connection has been established successfully.');
-      clearLoggerContext();
       return true;
     } catch (error) {
       logger.alert('Unable to connect to PostgreSQL database:', error);
-      clearLoggerContext();
       return false;
     }
   } catch (error) {
     logger.error('Error in testConnection:', error);
-    clearLoggerContext();
     return false;
+  } finally {
+    // Очищаем контекст логгера
+    clearLoggerContext();
   }
 };
 

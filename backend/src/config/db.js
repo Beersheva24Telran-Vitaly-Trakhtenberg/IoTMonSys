@@ -11,15 +11,20 @@ const connectDB = async () => {
   const dbConnectTraceId = generateLoggerTraceId();
   
   try {
-    setLoggerContext({ operation: 'db-connect', traceId: dbConnectTraceId });
+    setLoggerContext({
+      operation: 'db-connect',
+      traceId: dbConnectTraceId,
+      service: 'backend'
+    });
+    
     const conn = await mongoose.connect(process.env.MONGODB_URI_LEGACY);
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
-    clearLoggerContext();
     return true;
   } catch (error) {
     logger.error(`Error: ${error.message}`);
-    clearLoggerContext();
     process.exit(1);
+  } finally {
+    clearLoggerContext();
   }
 };
 
